@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, PropTypes } from "react"
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import { connect } from 'react-redux';
@@ -6,7 +6,19 @@ import { Link } from "react-router-dom"
 import * as actions from '../../actions';
 import { Redirect } from "react-router"
 
+import {setLanguage} from 'redux-i18n'
+
 class Progress extends Component{
+  constructor(props) {
+    super(props)
+    this.languages = ['pl', 'en']
+  }
+
+  componentWillMount() {
+    console.log(this.props.lang)
+    this.props.dispatch(setLanguage('en'))
+  }
+
   render(){
 
 
@@ -15,7 +27,7 @@ class Progress extends Component{
     const actions = [
     <Link to={`/${worker_id}/myprofile`}>
       <FlatButton
-        label="Go to my profile"
+        label={this.context.t('Go to my profile')}
         primary={true}
       />
     </Link>
@@ -40,7 +52,7 @@ class Progress extends Component{
             open={!this.props.bankDetailsSubmitted}
             onRequestClose={this.handleClose}
           >
-            You have to enter your bank details and NI number first
+            {this.context.t('You have to enter your details first')}
           </Dialog>
           <div>PROGRESS HERE</div>
           <div>PROGRESS HERE</div>
@@ -81,12 +93,20 @@ class Progress extends Component{
   }
 }
 
+Progress.contextTypes = {
+  t: PropTypes.func.isRequired
+}
+
 function mapStateToProps(state){
   return{
     bankDetailsSubmitted: state.main.bankDetailsSubmitted,
     authenticated: state.auth.authenticated
+
   }
 }
 
-export default connect(mapStateToProps, actions)(Progress);
-
+export default connect(mapStateToProps, actions)(
+  connect(state => ({
+    lang: state.i18nState.lang
+  }))(Progress)
+);

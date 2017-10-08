@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { Field, reduxForm } from 'redux-form';
 import { signinUser, clearAuthError } from '../../actions';
 import renderField from '../renderField'
@@ -20,7 +20,7 @@ class Signin extends Component {
     if (this.props.errorMessage) {
       return (
         <div style={{color: "red"}}>
-          <strong>Oops!</strong> {this.props.errorMessage}
+          <strong>{this.context.t('Oops!')}</strong> {this.props.errorMessage}
         </div>
       );
     }
@@ -47,12 +47,12 @@ class Signin extends Component {
                 name="password"
                 type="password"
                 component={renderField}
-                label="Password"
+                label={this.context.t('Password')}
               />
               {this.renderAlert()}
               <RaisedButton
                 type="submit"
-                label="SIGN IN"
+                label={this.context.t('SIGN IN')}
                 primary={true}
               />
             </form>
@@ -84,6 +84,11 @@ function mapStateToProps(state) {
     authenticated: state.auth.authenticated
   };
 }
+
+Signin.contextTypes = {
+  t: PropTypes.func.isRequired
+}
+
 
 export default reduxForm({
   form: 'signin',

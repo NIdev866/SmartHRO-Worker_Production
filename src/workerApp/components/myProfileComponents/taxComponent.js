@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
 import { Field, reduxForm, formValueSelector } from 'redux-form';
 import styles from '../form_material_styles'
@@ -19,11 +19,19 @@ import taxSubmit from './submitActions/taxSubmit'
 
 
 
-const renderError = ({ input, meta: { error } }) => (
-  <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
-    {error ? <span>{error}</span> : ""}
-  </div>
-)
+class renderError extends Component{
+  render(){
+    return(
+      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
+        {this.props.meta.error && this.props.meta.error == "Birth date required" ? <span>{this.context.t('Birth date required')}</span> : ""}
+      </div>
+    )
+  }
+}
+
+renderError.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 class TaxComponent extends Component{  
   constructor(props){
@@ -119,19 +127,18 @@ class TaxComponent extends Component{
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%'}}>
 
-      <h3><u>Tax</u></h3>
+      <h3><u>{this.context.t('Tax')}</u></h3>
 
           <form onSubmit={handleSubmit}>
               <div>
-                <div>National Insurance number</div>
+                <div>{this.context.t('National Insurance number')}</div>
                   {this.NIfields()}
               </div>
             <Field name="ni_number" component={renderError} />            
+            <div>{this.context.t('Birth date')}</div>
             <div>
-              <div style={{marginTop: '10px'}}>Birth date</div>
                 <DatePicker
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
-                  hintText="Birth date"
                   value={this.state.birthDate}
                   onChange={this.handleBirthDateChange}
                   formatDate={this.formatDate}
@@ -146,10 +153,29 @@ class TaxComponent extends Component{
   }
 }
 
+TaxComponent.contextTypes = {
+  t: PropTypes.func.isRequired
+}
+
 TaxComponent = reduxForm({
   form: 'taxDetails',
   validate,
   onSubmit: taxSubmit
-})(TaxComponent)
+})(
+  connect(null, actions)(
+    connect(state => ({
+      lang: state.i18nState.lang
+    }))(TaxComponent)
+  )
+)
 
 export default TaxComponent
+
+
+
+
+
+
+
+
+

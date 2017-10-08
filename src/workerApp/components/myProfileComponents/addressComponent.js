@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
 import { Field, reduxForm, formValueSelector } from 'redux-form';
 import styles from '../form_material_styles'
@@ -38,10 +38,10 @@ const RoadCourtBuildingCountyNameComponent = ({input, dispatch})=>(
   />
 )
 
-const HouseChosen = ({dispatch})=>(
+const HouseChosen = ({dispatch, context})=>(
   <div>
     <div style={{marginTop: '15px', marginBottom: '-4px'}}>
-    <div>House number</div>
+    <div>{context.t('House number')}</div>
     <Field
       onBlur={() => dispatch(submit('addressDetails'))}
       name="house_no"
@@ -54,10 +54,10 @@ const HouseChosen = ({dispatch})=>(
   </div>
 )
 
-const FlatChosen = ({dispatch})=>(
+const FlatChosen = ({dispatch, context})=>(
   <div>
     <div style={{marginTop: '15px', marginBottom: '-4px'}}>
-    <div>Flat number</div>
+    <div>{context.t('Flat number')}</div>
     <Field
       onBlur={() => dispatch(submit('addressDetails'))}
       name="flat_no"
@@ -70,14 +70,23 @@ const FlatChosen = ({dispatch})=>(
   </div>
 )
 
-const renderError = ({ input, meta: { error } }) => (
-  <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
-    {error ? <span>{error}</span> : ""}
-  </div>
-)
+class renderError extends Component{
+  render(){
+    return(
+      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
+        {this.props.meta.error && this.props.meta.error == "Address line 1 required" ? <span>{this.context.t('Address line 1 required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Postal code required" ? <span>{this.context.t('Postal code required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "House or flat required" ? <span>{this.context.t('House or flat required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "House number required" ? <span>{this.context.t('House number required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Flat number required" ? <span>{this.context.t('Flat number required')}</span> : ""}
+      </div>
+    )
+  }
+}
 
-
-
+renderError.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 class AddressComponent extends Component{
   constructor(props){
@@ -89,9 +98,6 @@ class AddressComponent extends Component{
       'postal_code22':'',
     }
   }
-
-
-
   postal_codeOnChange(event) {
     event.target.value = event.target.value.toUpperCase()
     let stateToChange = `postal_code${event.target.id}`
@@ -101,7 +107,7 @@ class AddressComponent extends Component{
         allPostal_codeBoxes.push(this.state[`postal_code${i+1}`])
       }
       let allPostal_codeBoxesJoined = allPostal_codeBoxes.join('')
-      this.props.dispatch(change('addressDetails', 'address_road3', allPostal_codeBoxesJoined))
+      this.props.dispatch(change('addressDetails', 'postal_code', allPostal_codeBoxesJoined))
     })
   }
   postal_codeFields(){
@@ -134,13 +140,12 @@ class AddressComponent extends Component{
   }
   houseOrFlatChosen(){
     if(this.props.house_or_flat === "house"){
-      return <HouseChosen dispatch={this.props.dispatch}/>
+      return <HouseChosen dispatch={this.props.dispatch} context={this.context}/>
     }
     else if(this.props.house_or_flat === "flat"){
-      return <FlatChosen dispatch={this.props.dispatch}/>
+      return <FlatChosen dispatch={this.props.dispatch} context={this.context}/>
     }
   }
-
   render(){    
   	const { handleSubmit } = this.props;   
     const radiosParentDiv = {
@@ -164,17 +169,16 @@ class AddressComponent extends Component{
       width: "45px",
       marginLeft: "30px"
     }
-
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%', padding: 0}}>
         <div style={{height: '30px', margin: 0}}>
-        <h3 style={{margin: 0, padding: 0, paddingTop: '10px'}}><u>Address</u></h3>
+        <h3 style={{margin: 0, padding: 0, paddingTop: '10px'}}><u>{this.context.t('Address')}</u></h3>
         </div>
         <div style={{position: 'relative', display: 'inline-block', width: '100%', height: 'calc(100% - 30px)'}}>
           <form>
             <div style={{float: 'left', width: '50%', height: '100%', }}>
               <div>
-                <div style={{marginTop: '10px'}}>Road name</div>
+                <div style={{marginTop: '10px'}}>{this.context.t('Address line 1')}</div>
                 <Field
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
                   name="address_road1"
@@ -184,7 +188,7 @@ class AddressComponent extends Component{
               </div>
               <Field name="address_road1" component={renderError} />
               <div>
-                <div style={{marginTop: '10px'}}>Court name</div>
+                <div style={{marginTop: '10px'}}>{this.context.t('Address line 2')}</div>
                 <Field
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
                   name="address_road2"
@@ -194,15 +198,20 @@ class AddressComponent extends Component{
               </div>
               <Field name="address_road2" component={renderError} />
               <div>
-                <div style={{marginTop: '10px'}}>Town</div>
+                <div style={{marginTop: '10px'}}>{this.context.t('Address line 3')}</div>
                 <Field
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
-                  name="town"
+                  name="address_road3"
                   type="text"
                   component={RoadCourtBuildingCountyNameComponent}
                 />
               </div>
-              <Field name="town" component={renderError} />
+              <Field name="address_road3" component={renderError} />
+              <div style={{marginTop: '15px', marginBottom: '-4px'}}>
+                <div>{this.context.t('Postal code')}</div>
+                  {this.postal_codeFields()}
+              </div>
+              <Field name="postal_code" component={renderError} />
 {/*              <div>
                 <div style={{marginTop: '10px'}}>Building name</div>
                 <Field
@@ -215,25 +224,30 @@ class AddressComponent extends Component{
               <Field name="building_name" component={renderError} />*/}
             </div>
             <div style={{float: 'right', width: '50%', height: '100%'}}>
-              <div style={{marginBottom: "-30px"}}>Do you live in a house or a flat?</div>
+              <div style={{marginBottom: "-30px"}}>{this.context.t('Do you live in a house or a flat?')}</div>
               <div style={radiosParentDiv}>
                 <Field style={houseFlatChooserStyle} name="house_or_flat" component={RadioButtonGroup}>
                   <RadioButton disableTouchRipple style={houseStyle} value="house"/>
                   <RadioButton disableTouchRipple style={flatStyle} value="flat"/>
                 </Field>
                 <div style={{...houseFlatChooserStyle, marginLeft: "-10px"}}>
-                  <span style={{marginRight: "72px"}}>House</span><span>Flat</span>
+                  <span style={{marginRight: "72px"}}>{this.context.t('House')}</span><span>{this.context.t('Flat')}</span>
                 </div>
                 <Field name="house_or_flat" component={renderError} />
               </div>
               {this.houseOrFlatChosen()}
-              <div style={{marginTop: '15px', marginBottom: '-4px'}}>
-                <div>postal code</div>
-                  {this.postal_codeFields()}
-              </div>
-              <Field name="address_road3" component={renderError} />
               <div>
-                <div style={{marginTop: '10px'}}>County</div>
+                <div style={{marginTop: '10px'}}>{this.context.t('Town')}</div>
+                <Field
+                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                  name="town"
+                  type="text"
+                  component={RoadCourtBuildingCountyNameComponent}
+                />
+              </div>
+              <Field name="town" component={renderError} />
+              <div>
+                <div style={{marginTop: '10px'}}>{this.context.t('County')}</div>
                 <Field
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
                   name="county"
@@ -250,6 +264,10 @@ class AddressComponent extends Component{
   }
 }
 
+AddressComponent.contextTypes = {
+  t: PropTypes.func.isRequired
+}
+
 AddressComponent = reduxForm({
   form: 'addressDetails',
   validate,
@@ -264,25 +282,10 @@ AddressComponent = connect(
       house_or_flat
     }
   }
-)(AddressComponent)
+)(
+  connect(state => ({
+    lang: state.i18nState.lang
+  }))(AddressComponent)
+)
 
 export default AddressComponent
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

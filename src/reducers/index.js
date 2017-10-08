@@ -4,6 +4,7 @@ import mainReducer from './mainReducer';
 import authReducer from './auth_reducer';
 import jobseekerReducer from './jobseeker_reducer'
 import creating_campaign_reducer from './creating_campaign_reducer';
+import {i18nState} from "redux-i18n"
 
 
 const rootReducer = combineReducers({
@@ -11,7 +12,8 @@ const rootReducer = combineReducers({
   main: mainReducer,
   creating_campaign: creating_campaign_reducer,
   jobseeker: jobseekerReducer,
-  auth: authReducer
+  auth: authReducer,
+  i18nState,
 });
 
 export default rootReducer;

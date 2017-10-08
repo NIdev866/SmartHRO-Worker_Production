@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
 import { Field, reduxForm, formValueSelector } from 'redux-form';
 import styles from '../form_material_styles'
@@ -10,7 +10,6 @@ import validate from '../validate'
 import TextField from 'material-ui/TextField'
 import AvatarCropper from "react-avatar-cropper";
 import ReactDom from "react-dom";
-import submit from "../submit"
 import { RadioButton } from 'material-ui/RadioButton'
 import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
@@ -49,7 +48,7 @@ class PersonalDetailsComponent extends Component{
       this.setState({
         birthDateFormatted: this.formatDate(this.state.birthDate)
       }, ()=>{
-        this.props.dispatch(change('personalDetails', 'birth_date', this.state.birthDateFormatted));
+        this.props.dispatch(change('personalDetails', 'dob', this.state.birthDateFormatted));
       })
     })
   }
@@ -81,7 +80,7 @@ class PersonalDetailsComponent extends Component{
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%'}}>
 
-      <h3><u>Personal Details</u></h3>
+      <h3><u>{this.context.t('Personal Details')}</u></h3>
 
         <form onSubmit={handleSubmit}>
 {/*            <div>
@@ -93,8 +92,8 @@ class PersonalDetailsComponent extends Component{
                   formatDate={this.formatDate}
                   openToYearSelection={true}
                 />
-            </div>*/}
-            <Field name="birth_date" component={renderError} />
+            </div>
+            <Field name="dob" component={renderError} />*/}
         </form>
 
       </div>
@@ -102,10 +101,19 @@ class PersonalDetailsComponent extends Component{
   }
 }
 
+PersonalDetailsComponent.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 PersonalDetailsComponent = reduxForm({
   form: 'personalDetails',
-  onSubmit: submit
-})(PersonalDetailsComponent)
+  validate
+})(
+  connect(null, actions)(
+    connect(state => ({
+      lang: state.i18nState.lang
+    }))(PersonalDetailsComponent)
+  )
+)
 
 export default PersonalDetailsComponent

@@ -3,18 +3,32 @@ import { Grid, Row, Col } from 'react-flexbox-grid'
 import Nav from "./components/nav"
 import Progress from "./components/progress"
 import Contents from './contents'
-
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Redirect } from 'react-router'
-
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 
+import {setLanguage} from 'redux-i18n'
+
 class WorkerParent extends Component {
+  constructor(props) {
+    super(props)
+    this.languages = ['pl', 'en']
+  }
+
+  componentWillMount() {
+    this.props.dispatch(setLanguage('en'))
+  }
+
+  onChangeLang = (e) => {
+    this.props.dispatch(setLanguage(e.target.value))
+  }
+
   render(){
+
     return(
       <div>
-        <Nav />
+        <Nav onChangeLang={this.onChangeLang} languages={this.languages}/>
         <Contents url={this.props.match.url} />
       </div>
     )
@@ -23,8 +37,16 @@ class WorkerParent extends Component {
 
 function mapStateToProps(state){
   return{
-    authenticated: state.auth.authenticated
+    authenticated: state.auth.authenticated,
   }
 }
 
-export default connect(mapStateToProps, actions)(WorkerParent);
+WorkerParent.contextTypes = {
+  t: PropTypes.func.isRequired
+}
+
+export default connect(mapStateToProps, actions)(
+  connect(state => ({
+    lang: state.i18nState.lang
+  }))(WorkerParent)
+);

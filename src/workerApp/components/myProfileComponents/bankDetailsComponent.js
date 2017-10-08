@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
 import { Field, reduxForm, formValueSelector } from 'redux-form';
 import styles from '../form_material_styles'
@@ -33,12 +33,22 @@ const pay_frequency = [
 ]
 
 
-const renderError = ({ input, meta: { error } }) => (
-  <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
-    {error ? <span>{error}</span> : ""}
-  </div>
-)
 
+class renderError extends Component{
+  render(){
+    return(
+      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
+        {this.props.meta.error && this.props.meta.error == "Full sortcode required" ? <span>{this.context.t('Full sortcode required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Bank account number required" ? <span>{this.context.t('Bank account number required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Invalid bank account number" ? <span>{this.context.t('Invalid bank account number')}</span> : ""}
+      </div>
+    )
+  }
+}
+
+renderError.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 class BankDetailsComponent extends Component{
   constructor(props){
@@ -59,9 +69,6 @@ class BankDetailsComponent extends Component{
       'bank_account_number38':'',
     }
   }
-
-
-
   sortcodeOnChange(event) {
     event.target.value = event.target.value.toUpperCase()
     if (event.target.value.length === event.target.maxLength && event.target.id !== '14') {
@@ -167,7 +174,7 @@ class BankDetailsComponent extends Component{
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%'}}>
 
-      <h3><u>Bank Details</u></h3>
+      <h3><u>{this.context.t('Bank Details')}</u></h3>
 
         <form onSubmit={handleSubmit}>
           <div style={{marginTop: '15px', marginBottom: '-4px'}}>
@@ -180,10 +187,10 @@ class BankDetailsComponent extends Component{
               {this.bankAccountNumberFields()}
           </div>
           <Field name="acc_no" component={renderError} />
-          <div style={{marginTop: '-20px'}}>
+          <div>{this.context.t('Payment method')}</div>
+          <div>
             <Field name="pay_method" component={SelectField} 
               onChange={() => this.props.dispatch(submit('bankDetails'))}
-              hintText="Payment method" 
               selectedMenuItemStyle={{color: "#00BCD4"}} 
               underlineStyle={{display: "none"}} 
               errorStyle={{display: "none"}}>
@@ -191,10 +198,10 @@ class BankDetailsComponent extends Component{
             </Field>
             <Field name="pay_method" component={renderError} />
           </div>
-          <div style={{marginTop: '-20px'}}>
+          <div style={{marginTop: '-20px'}}>{this.context.t('Pay frequency')}</div>
+          <div>
             <Field name="pay_frequency" component={SelectField} 
               onChange={() => this.props.dispatch(submit('bankDetails'))}
-              hintText="Pay frequency" 
               selectedMenuItemStyle={{color: "#00BCD4"}} 
               underlineStyle={{display: "none"}} 
               errorStyle={{display: "none"}}>
@@ -209,10 +216,20 @@ class BankDetailsComponent extends Component{
   }
 }
 
+BankDetailsComponent.contextTypes = {
+  t: PropTypes.func.isRequired
+}
+
 BankDetailsComponent = reduxForm({
   form: 'bankDetails',
   validate,
   onSubmit: bankDetailsSubmit
-})(BankDetailsComponent)
+})(
+  connect(null, actions)(
+    connect(state => ({
+      lang: state.i18nState.lang
+    }))(BankDetailsComponent)
+  )
+)
 
 export default BankDetailsComponent

@@ -64,19 +64,28 @@ const validate = values => {
 
 
 
+
+  if (!values.address_road1) {
+    errors.address_road1 = 'Address line 1 required'
+  }
+  if (!values.postal_code) {
+    errors.postal_code = 'Postal code required'
+  }
   if (!values.house_or_flat) {
     errors.house_or_flat = 'House or flat required'
   }
-
-
-
   if (!values.house_no) {
     errors.house_no = 'House number required'
   }
-
   if (!values.flat_no) {
     errors.flat_no = 'Flat number required'
   }
+
+
+
+
+
+
 
   if(!values.acc_no){
     errors.acc_no = 'Bank account number required'
@@ -106,20 +115,11 @@ const validate = values => {
     errors.acc_no = 'Invalid bank account number'
   }
   else if(values.acc_no.length !== 8){
-    errors.acc_no = 'Full bank account number required'
-  }
-
-  if (!values.address_road1) {
-    errors.address_road1 = 'Road name required'
-  }
-  if (!values.address_road2) {
-    errors.address_road2 = 'Court name required'
-  }
-  if (!values.address_road3) {
-    errors.address_road3 = 'Postal code required'
+    errors.acc_no = 'Bank account number required'
   }
 
   
+
   if (!values.dob) {
     errors.dob = 'Birth date required'
   }

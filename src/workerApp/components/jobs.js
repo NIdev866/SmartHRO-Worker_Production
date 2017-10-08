@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { Component, PropTypes } from "react"
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -29,8 +29,6 @@ class Jobs extends Component{
       return <Redirect to={`/${worker_id}/jobs`}/>
     }
     else{
-
-      //this.props.history.push(`${worker_id}/jobs`)
     
       return(
         <div style={{maxWidth: "800px", margin: "0 auto"}}>
@@ -42,7 +40,7 @@ class Jobs extends Component{
             open={!this.props.bankDetailsSubmitted}
             onRequestClose={this.handleClose}
           >
-            You have to enter your bank details and NI number first
+            {this.context.t('You have to enter your details first')}
           </Dialog>
           <JobCards />
         </div>
@@ -52,6 +50,9 @@ class Jobs extends Component{
   }
 }
 
+Jobs.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 function mapStateToProps(state){
   return{
@@ -60,4 +61,8 @@ function mapStateToProps(state){
   }
 }
 
-export default connect(mapStateToProps, actions)(Jobs);
+export default connect(mapStateToProps, actions)(
+  connect(state => ({
+    lang: state.i18nState.lang
+  }))(Jobs)
+);
