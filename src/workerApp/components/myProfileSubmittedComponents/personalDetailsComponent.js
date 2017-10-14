@@ -15,6 +15,10 @@ import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
 
 
+
+
+
+
 const renderError = ({ input, meta: { error } }) => (
   <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
     {error ? <span>{error}</span> : ""}
@@ -111,6 +115,5 @@ PersonalDetailsComponent = reduxForm({
     }))(PersonalDetailsComponent)
   )
 )
-
 
 export default PersonalDetailsComponent

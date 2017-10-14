@@ -10,11 +10,15 @@ import reducers from './reducers';
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import Progress from "./workerApp/components/progress"
 import Myprofile from "./workerApp/components/myProfileParent"
+
+import Myprofilesubmitted from './workerApp/components/myProfileParentSubmitted'
+
 import Jobs from "./workerApp/components/jobs"
 import reduxThunk from 'redux-thunk';
 import { AUTH_USER } from './actions/types';
 import WorkerParent from "./workerApp/workerParent"
 import Signin from './workerApp/auth/signin'
+import SignupComponent from './workerApp/signup/signupComponent'
 import RequireAuth from './workerApp/auth/require_auth'
 
 
@@ -45,15 +49,29 @@ ReactDOM.render(
     <I18n translations={translations}>
       <MuiThemeProvider>
         <BrowserRouter>
-          <div>
-            <Route path='/' component={WorkerParent} />
-            <Route path='/login' component={Signin} />
-            <Route path="/:worker_id/progress" component={RequireAuth(Progress)}/>
-            <Route path="/:worker_id/jobs" component={RequireAuth(Jobs)}/>
-            <Route path="/:worker_id/myprofile" component={RequireAuth(Myprofile)}/>
-          </div>
+            <div>
+              <Switch>
+                <Route path='/:worker_id/signup' component={SignupComponent} />
+                <Route path="/:worker_id/jobs" component={RequireAuth(Jobs)}/>
+                <Route path="/:worker_id/progress" component={RequireAuth(Progress)}/>
+                <Route path="/:worker_id/myprofile" component={RequireAuth(Myprofile)}/>
+                <Route path="/:worker_id/myprofilesubmitted" component={RequireAuth(Myprofilesubmitted)}/>
+                <Route path='/login' component={Signin} />
+                <Route path='/' component={WorkerParent} />
+
+
+
+              </Switch>
+
+
+
+            </div>
+
         </BrowserRouter>
       </MuiThemeProvider>
     </I18n>
   </Provider>
   , document.getElementById('root'));
+
+
+  //

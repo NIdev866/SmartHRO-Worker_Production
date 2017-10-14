@@ -28,7 +28,7 @@ const renderField = ({ input, label, type, meta: { dirty, touched, error } }) =>
           floatingLabelStyle={styles.floatingLabelStyle}
           floatingLabelFocusStyle={styles.floatingLabelFocusStyle}
           fullWidth={true}
-          primary={true}
+          
           {...input}
         />
         <div style={{color: "red"}}>

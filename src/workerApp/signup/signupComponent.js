@@ -1,19 +1,23 @@
 import React, { Component, PropTypes } from 'react';
-import { Field, reduxForm } from 'redux-form';
-import { signinUser, clearAuthError } from '../../actions';
+import { Field, reduxForm, change } from 'redux-form';
+import { signupUser,clearAuthError } from '../../actions';
 import renderField from '../renderField'
 import RaisedButton from 'material-ui/RaisedButton'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 
 
-class Signin extends Component {
+class SignupComponent extends Component {
   constructor() {
     super();
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
   }
+  componentDidMount(){
+    this.props.dispatch(change('signup', 'jobseeker_id', this.props.match.params.worker_id))
+    this.props.clearAuthError()
+  }
   handleFormSubmit(formProps) {
-    this.props.signinUser(formProps)
+    this.props.signupUser(formProps)
   }
   renderAlert() {
     if (this.props.errorMessage) {
@@ -24,9 +28,8 @@ class Signin extends Component {
       );
     }
   }
-  componentDidMount(){
-    this.props.clearAuthError()
-  }
+
+
   render() {
     const { handleSubmit } = this.props;
     return (
@@ -48,19 +51,26 @@ class Signin extends Component {
                 component={renderField}
                 label={this.context.t('Password')}
               />
-              {this.renderAlert()}
+              <Field
+                name="confirm_password"
+                type="password"
+                component={renderField}
+                label={this.context.t('Confirm Password')}
+              />
+
               <RaisedButton
                 type="submit"
-                label={this.context.t('LOGIN')}
+                label={this.context.t('SIGN UP')}
                 primary={true}
               />
             </form>
           }
         </div>
       </div>
-    )
-  }
-}
+
+    )//return
+  }//render
+}//compo
 
 function validate(formProps) {
   const errors = {};
@@ -73,8 +83,21 @@ function validate(formProps) {
   }
   if (!formProps.password) {
     errors.password = 'Please enter a password';
+  }else if (formProps.password !== formProps.confirm_password) {
+    errors.confirm_password = 'Passwords don\'t match'
+  }else if(!formProps.password) {
+    errors.confirm_password = ''}
+  if(errors.password === "Required" && errors.confirm_password === "Passwords don\'t match"){
+    errors.confirm_password = ""
   }
+
   return errors;
+}
+
+
+
+SignupComponent.contextTypes = {
+  t: PropTypes.func.isRequired
 }
 
 function mapStateToProps(state) {
@@ -84,14 +107,10 @@ function mapStateToProps(state) {
   };
 }
 
-Signin.contextTypes = {
-  t: PropTypes.func.isRequired
-}
-
 
 export default reduxForm({
-  form: 'signin',
-  validate,
+  form: 'signup',
+  validate
 })(
-  connect(mapStateToProps, { signinUser, clearAuthError })(Signin)
+  connect(mapStateToProps,{ signupUser,clearAuthError })(SignupComponent)
 );

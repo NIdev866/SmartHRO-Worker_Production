@@ -9,3 +9,5 @@ export const NESTED_JOB_SECTORS = "nested_job_sectors"
 export const COMPANIES = 'companies'
 
 export const ALL_CAMPAIGNS = 'all_campaigns'
+
+export const PERSONAL_DATA_OF_WORKER = 'personal_data_of_worker'

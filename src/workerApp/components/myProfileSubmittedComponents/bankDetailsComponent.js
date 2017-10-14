@@ -33,23 +33,6 @@ const pay_frequency = [
 ]
 
 
-
-class renderError extends Component{
-  render(){
-    return(
-      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
-        {this.props.meta.error && this.props.meta.error == "Full sortcode required" ? <span>{this.context.t('Full sortcode required')}</span> : ""}
-        {this.props.meta.error && this.props.meta.error == "Bank account number required" ? <span>{this.context.t('Bank account number required')}</span> : ""}
-        {this.props.meta.error && this.props.meta.error == "Invalid bank account number" ? <span>{this.context.t('Invalid bank account number')}</span> : ""}
-      </div>
-    )
-  }
-}
-
-renderError.contextTypes = {
-  t: PropTypes.func.isRequired
-}
-
 class BankDetailsComponent extends Component{
   constructor(props){
     super(props)
@@ -145,7 +128,10 @@ class BankDetailsComponent extends Component{
     return <div>{result}</div>
   }
 
-
+  handleEdit(e,){
+    e.preventDefault()
+    console.log({e})
+  }
 
   render(){
   	const { handleSubmit } = this.props;
@@ -179,26 +165,56 @@ class BankDetailsComponent extends Component{
         <form onSubmit={handleSubmit}>
           <div style={{marginTop: '15px', marginBottom: '-4px'}}>
             <div>sortcode</div>
-              {this.sortcodeFields()}
+
+
+
+            {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].sort_code ?
+              <div><span>{this.props.personalDataOfWorker[0].sort_code}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+              :
+
+              this.sortcodeFields()
+
+            }
+
+
+
           </div>
-          <Field name="sort_code" component={renderError} />
-          <div>
+          <div style={{marginTop: '20px'}}>
             <div>Bank account number</div>
-              {this.bankAccountNumberFields()}
+
+            {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].acc_no ?
+              <div><span>{this.props.personalDataOfWorker[0].acc_no}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+              :
+
+              this.bankAccountNumberFields()
+
+            }
+
           </div>
-          <Field name="acc_no" component={renderError} />
-          <div>{this.context.t('Payment method')}</div>
-          <div>
-            <Field name="pay_method" component={SelectField}
-              onChange={() => this.props.dispatch(submit('bankDetails'))}
-              selectedMenuItemStyle={{color: "#00BCD4"}}
-              underlineStyle={{display: "none"}}
-              errorStyle={{display: "none"}}>
-            {pay_method.map(pay_method => <MenuItem value={pay_method} primaryText={pay_method}/>)}
-            </Field>
-            <Field name="pay_method" component={renderError} />
-          </div>
-          <div style={{marginTop: '-20px'}}>{this.context.t('Pay frequency')}</div>
+          <div style={{marginTop: '20px'}}>{this.context.t('Payment method')}</div>
+
+          {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].pay_method ?
+            <div><span>{this.props.personalDataOfWorker[0].pay_method}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+            :
+
+            <div>
+              <Field name="pay_method" component={SelectField}
+                onChange={() => this.props.dispatch(submit('bankDetails'))}
+                selectedMenuItemStyle={{color: "#00BCD4"}}
+                underlineStyle={{display: "none"}}
+                errorStyle={{display: "none"}}>
+              {pay_method.map(pay_method => <MenuItem value={pay_method} primaryText={pay_method}/>)}
+              </Field>
+            </div>
+
+          }
+
+          <div style={{marginTop: '20px'}}>{this.context.t('Pay frequency')}</div>
+
+          {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].pay_frequency ?
+            <div><span>{this.props.personalDataOfWorker[0].pay_frequency}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+            :
+
           <div>
             <Field name="pay_frequency" component={SelectField}
               onChange={() => this.props.dispatch(submit('bankDetails'))}
@@ -207,8 +223,10 @@ class BankDetailsComponent extends Component{
               errorStyle={{display: "none"}}>
             {pay_frequency.map(pay_frequency => <MenuItem value={pay_frequency} primaryText={pay_frequency}/>)}
             </Field>
-            <Field name="pay_frequency" component={renderError} />
           </div>
+
+        }
+
         </form>
 
       </div>
@@ -232,4 +250,10 @@ BankDetailsComponent = reduxForm({
   )
 )
 
-export default BankDetailsComponent
+function mapStateToProps(state) {
+  return {
+    personalDataOfWorker: state.main.personalDataOfWorker
+  };
+}
+
+export default connect(mapStateToProps)(BankDetailsComponent)

@@ -50,7 +50,6 @@ const HouseChosen = ({dispatch, context})=>(
       component={HouseFlatNumberComponent}
     />
     </div>
-    <Field name="house_no" component={renderError} />
   </div>
 )
 
@@ -66,27 +65,8 @@ const FlatChosen = ({dispatch, context})=>(
       component={HouseFlatNumberComponent}
     />
     </div>
-    <Field name="flat_no" component={renderError} />
   </div>
 )
-
-class renderError extends Component{
-  render(){
-    return(
-      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
-        {this.props.meta.error && this.props.meta.error == "Address line 1 required" ? <span>{this.context.t('Address line 1 required')}</span> : ""}
-        {this.props.meta.error && this.props.meta.error == "Postal code required" ? <span>{this.context.t('Postal code required')}</span> : ""}
-        {this.props.meta.error && this.props.meta.error == "House or flat required" ? <span>{this.context.t('House or flat required')}</span> : ""}
-        {this.props.meta.error && this.props.meta.error == "House number required" ? <span>{this.context.t('House number required')}</span> : ""}
-        {this.props.meta.error && this.props.meta.error == "Flat number required" ? <span>{this.context.t('Flat number required')}</span> : ""}
-      </div>
-    )
-  }
-}
-
-renderError.contextTypes = {
-  t: PropTypes.func.isRequired
-}
 
 class AddressComponent extends Component{
   constructor(props){
@@ -146,6 +126,15 @@ class AddressComponent extends Component{
       return <FlatChosen dispatch={this.props.dispatch} context={this.context}/>
     }
   }
+
+
+
+  handleEdit(e,){
+    e.preventDefault()
+    console.log({e})
+  }
+
+
   render(){
   	const { handleSubmit } = this.props;
     const radiosParentDiv = {
@@ -179,39 +168,72 @@ class AddressComponent extends Component{
             <div style={{float: 'left', width: '50%', height: '100%', }}>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 1')}</div>
+
+
+              {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].address_road1 ?
+                <div><span>{this.props.personalDataOfWorker[0].address_road1}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                :
                 <Field
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
                   name="address_road1"
                   type="text"
                   component={RoadCourtBuildingCountyNameComponent}
                 />
+              }
+
+
               </div>
-              <Field name="address_road1" component={renderError} />
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 2')}</div>
-                <Field
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
-                  name="address_road2"
-                  type="text"
-                  component={RoadCourtBuildingCountyNameComponent}
-                />
+
+                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].address_road2 ?
+                  <div><span>{this.props.personalDataOfWorker[0].address_road2}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                  :
+
+                  <Field
+                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    name="address_road2"
+                    type="text"
+                    component={RoadCourtBuildingCountyNameComponent}
+                  />
+                }
+
+
+
               </div>
-              <Field name="address_road2" component={renderError} />
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 3')}</div>
-                <Field
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
-                  name="address_road3"
-                  type="text"
-                  component={RoadCourtBuildingCountyNameComponent}
-                />
+
+                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].address_road3 ?
+                  <div><span>{this.props.personalDataOfWorker[0].address_road3}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                  :
+
+
+                  <Field
+                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    name="address_road3"
+                    type="text"
+                    component={RoadCourtBuildingCountyNameComponent}
+                  />
+
+                }
+
               </div>
-              <Field name="address_road3" component={renderError} />
               <div style={{marginTop: '15px', marginBottom: '-4px'}}>
                 <div>{this.context.t('Postal code')}</div>
-                  {this.postal_codeFields()}
+
+
+                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].postal_code ?
+                  <div><span>{this.props.personalDataOfWorker[0].postal_code}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                  :
+
+
+                  this.postal_codeFields()
+
+                }
+
+
               </div>
-              <Field name="postal_code" component={renderError} />
 {/*              <div>
                 <div style={{marginTop: '10px'}}>Building name</div>
                 <Field
@@ -224,38 +246,65 @@ class AddressComponent extends Component{
               <Field name="building_name" component={renderError} />*/}
             </div>
             <div style={{float: 'right', width: '50%', height: '100%'}}>
-              <div style={{marginBottom: "-30px"}}>{this.context.t('Do you live in a house or a flat?')}</div>
-              <div style={radiosParentDiv}>
-                <Field style={houseFlatChooserStyle} name="house_or_flat" component={RadioButtonGroup}>
-                  <RadioButton disableTouchRipple style={houseStyle} value="house"/>
-                  <RadioButton disableTouchRipple style={flatStyle} value="flat"/>
-                </Field>
-                <div style={{...houseFlatChooserStyle, marginLeft: "-10px"}}>
-                  <span style={{marginRight: "72px"}}>{this.context.t('House')}</span><span>{this.context.t('Flat')}</span>
+
+              {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].house_no ?
+                <div><div>House no: </div><span>{this.props.personalDataOfWorker[0].house_no}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                :
+
+                <div>
+                  <div style={{marginBottom: "-30px"}}>{this.context.t('Do you live in a house or a flat?')}</div>
+                  <div style={radiosParentDiv}>
+                    <Field style={houseFlatChooserStyle} name="house_or_flat" component={RadioButtonGroup}>
+                      <RadioButton disableTouchRipple style={houseStyle} value="house"/>
+                      <RadioButton disableTouchRipple style={flatStyle} value="flat"/>
+                    </Field>
+                    <div style={{...houseFlatChooserStyle, marginLeft: "-10px"}}>
+                      <span style={{marginRight: "72px"}}>{this.context.t('House')}</span><span>{this.context.t('Flat')}</span>
+                    </div>
+                  </div>
                 </div>
-                <Field name="house_or_flat" component={renderError} />
-              </div>
+
+              }
+
+
               {this.houseOrFlatChosen()}
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Town')}</div>
-                <Field
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
-                  name="town"
-                  type="text"
-                  component={RoadCourtBuildingCountyNameComponent}
-                />
+
+
+                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].town ?
+                  <div><span>{this.props.personalDataOfWorker[0].town}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                  :
+
+                  <Field
+                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    name="town"
+                    type="text"
+                    component={RoadCourtBuildingCountyNameComponent}
+                  />
+
+                }
+
               </div>
-              <Field name="town" component={renderError} />
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('County')}</div>
+
+
+                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].county ?
+                  <div><span>{this.props.personalDataOfWorker[0].county}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+                  :
+
+
                 <Field
                   onBlur={() => this.props.dispatch(submit('addressDetails'))}
                   name="county"
                   type="text"
                   component={RoadCourtBuildingCountyNameComponent}
                 />
+
+              }
+
               </div>
-              <Field name="county" component={renderError} />
             </div>
           </form>
         </div>
@@ -288,4 +337,10 @@ AddressComponent = connect(
   }))(AddressComponent)
 )
 
-export default AddressComponent
+function mapStateToProps(state) {
+  return {
+    personalDataOfWorker: state.main.personalDataOfWorker
+  };
+}
+
+export default connect(mapStateToProps)(AddressComponent)
