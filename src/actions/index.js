@@ -18,11 +18,46 @@ import {
 
 const ROOT_URL = 'http://ec2-54-77-236-165.eu-west-1.compute.amazonaws.com:3000';
 
-export function submitBankDetails(){
-  return {
-    type: SUBMIT_BANK_DETAILS
+
+
+
+
+
+
+
+
+
+
+
+export function updatePersonalDataOfWorker(personalDataOfWorkerCopy){
+  const worker_id = localStorage.getItem('worker_id');
+
+  console.log('one')
+
+  return function(dispatch){
+    axios.post(`http://localhost:3000/worker/update/${worker_id}`, {personalDataOfWorkerCopy})
+      .then(response => {
+
+          console.log('two')
+
+        fetchPersonalDataOfWorker()
+      })
+      .catch((err)=>{
+        console.log(err)
+        fetchPersonalDataOfWorker()
+      })
   }
+
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -32,6 +67,8 @@ export function submitBankDetails(){
 
 export function fetchPersonalDataOfWorker(){
   const worker_id = localStorage.getItem('worker_id');
+
+            console.log('three')
 
   return function(dispatch){
     axios.get(`http://localhost:3000/worker/personal/${worker_id}`)
@@ -44,10 +81,6 @@ export function fetchPersonalDataOfWorker(){
       })
   }
 }
-
-
-
-
 
 export function fetchNestedJobSectors(){
   return function(dispatch){
@@ -74,9 +107,6 @@ export function fetchCompanies(){
       })
   }
 }
-
-
-
 
 export function fetchAllCampaigns(){
   return function(dispatch){
@@ -148,4 +178,10 @@ export function clearAuthError(error) {
   return {
     type: CLEAR_AUTH_ERROR
   };
+}
+
+export function submitBankDetails(){
+  return {
+    type: SUBMIT_BANK_DETAILS
+  }
 }

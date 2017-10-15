@@ -4,31 +4,17 @@ import { Field, reduxForm, formValueSelector } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
-import * as actions from '../../../actions';
+import { updatePersonalDataOfWorker } from '../../../actions';
 import {change, submit} from 'redux-form'
 import validate from '../validate'
 import TextField from 'material-ui/TextField'
 import AvatarCropper from "react-avatar-cropper";
 import ReactDom from "react-dom";
-
-
 import addresssubmit from "./submitActions/addressSubmit"
-
-
 import { RadioButton } from 'material-ui/RadioButton'
 import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
 
-
-
-
-const HouseFlatNumberComponent = ({input, dispatch})=>(
-  <TextField inputStyle={{textAlign: 'center'}} type="text"
-          onBlur={() => dispatch(submit('addressDetails'))}
-    maxLength='5' style={{width: '15%', marginRight: '0px'}}
-    {...input}
-  />
-)
 
 const RoadCourtBuildingCountyNameComponent = ({input, dispatch})=>(
   <TextField inputStyle={{textAlign: 'left'}} type="text"
@@ -38,12 +24,23 @@ const RoadCourtBuildingCountyNameComponent = ({input, dispatch})=>(
   />
 )
 
-const HouseChosen = ({dispatch, context})=>(
+const HouseFlatNumberComponent = ({input, dispatch})=>(
+  <TextField inputStyle={{textAlign: 'center'}} type="text"
+          onBlur={() => dispatch(submit('addressDetails'))}
+    maxLength='5' style={{width: '15%', marginRight: '0px'}}
+    {...input}
+  />
+)
+
+const HouseChosen = ({dispatch, context, closeAllEdits})=>(
   <div>
     <div style={{marginTop: '15px', marginBottom: '-4px'}}>
     <div>{context.t('House number')}</div>
     <Field
-      onBlur={() => dispatch(submit('addressDetails'))}
+      onBlur={() => {
+        dispatch(submit('addressDetails'))
+        closeAllEdits()
+      }}
       name="house_no"
       type="text"
       dispatch={dispatch}
@@ -53,12 +50,15 @@ const HouseChosen = ({dispatch, context})=>(
   </div>
 )
 
-const FlatChosen = ({dispatch, context})=>(
+const FlatChosen = ({dispatch, context, closeAllEdits})=>(
   <div>
     <div style={{marginTop: '15px', marginBottom: '-4px'}}>
     <div>{context.t('Flat number')}</div>
     <Field
-      onBlur={() => dispatch(submit('addressDetails'))}
+      onBlur={() => {
+        dispatch(submit('addressDetails'))
+        closeAllEdits()
+      }}
       name="flat_no"
       type="text"
       dispatch={dispatch}
@@ -67,6 +67,18 @@ const FlatChosen = ({dispatch, context})=>(
     </div>
   </div>
 )
+
+
+
+
+
+
+
+
+
+
+
+
 
 class AddressComponent extends Component{
   constructor(props){
@@ -77,6 +89,7 @@ class AddressComponent extends Component{
       'postal_code21':'',
       'postal_code22':'',
     }
+    this.closeAllEdits = this.closeAllEdits.bind(this)
   }
   postal_codeOnChange(event) {
     event.target.value = event.target.value.toUpperCase()
@@ -99,7 +112,9 @@ class AddressComponent extends Component{
         result.push(
           <span>
           <TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text"
-          onBlur={() => this.props.dispatch(submit('addressDetails'))}
+            onBlur={() => {
+              this.props.updatePersonalDataOfWorker()
+            }}
           maxLength='5' ref={refStringified} style={{width: '15%', marginRight: '0px'}}name=""
           onChange={this.postal_codeOnChange}/>
             &mdash;
@@ -108,8 +123,12 @@ class AddressComponent extends Component{
       }
       else{
         result.push(
-          <TextField onBlur={() => this.props.dispatch(submit('addressDetails'))} id={refStringified}
+          <TextField onBlur={() => this.props.updatePersonalDataOfWorker()} id={refStringified}
           inputStyle={{textAlign: 'center'}} type="text"
+            onBlur={() => {
+              this.props.updatePersonalDataOfWorker()
+              this.closeAllEdits()
+            }}
           maxLength='5' ref={refStringified} style={{width: '15%', marginRight: '0px'}}name=""
           onChange={this.postal_codeOnChange}/>
         )
@@ -120,21 +139,59 @@ class AddressComponent extends Component{
   }
   houseOrFlatChosen(){
     if(this.props.house_or_flat === "house"){
-      return <HouseChosen dispatch={this.props.dispatch} context={this.context}/>
+      return <HouseChosen closeAllEdits={this.closeAllEdits} dispatch={this.props.dispatch} context={this.context}/>
     }
     else if(this.props.house_or_flat === "flat"){
-      return <FlatChosen dispatch={this.props.dispatch} context={this.context}/>
+      return <FlatChosen closeAllEdits={this.closeAllEdits} dispatch={this.props.dispatch} context={this.context}/>
     }
   }
-
-
-
-  handleEdit(e,){
-    e.preventDefault()
-    console.log({e})
+  editAddress1(proxy){
+    proxy.preventDefault()
+    this.setState({editingAddress1: true})
   }
 
+  editAddress2(proxy){
+    proxy.preventDefault()
+    this.setState({editingAddress2: true})
+  }
 
+  editAddress3(proxy){
+    proxy.preventDefault()
+    this.setState({editingAddress3: true})
+  }
+
+  editPostalCode(proxy){
+    proxy.preventDefault()
+    this.setState({editingPostalCode: true})
+  }
+
+  editHouseNo(proxy){
+    proxy.preventDefault()
+    this.setState({editingHouseNo: true})
+  }
+
+  editTown(proxy){
+    proxy.preventDefault()
+    this.setState({editingTown: true})
+  }
+
+  editCounty(proxy){
+    proxy.preventDefault()
+    this.setState({editingCounty: true})
+  }
+
+  closeAllEdits(){
+    this.setState({
+      editingAddress1: false,
+      editingAddress2: false,
+      editingAddress3: false,
+      editingPostalCode: false,
+      editingHouseNo: false,
+      editingTown: false,
+      editingCounty: false
+
+    })
+  }
   render(){
   	const { handleSubmit } = this.props;
     const radiosParentDiv = {
@@ -158,6 +215,10 @@ class AddressComponent extends Component{
       width: "45px",
       marginLeft: "30px"
     }
+    let personalDataOfWorkerCopy = {}
+    if(this.props.personalDataOfWorker){
+      personalDataOfWorkerCopy = {...this.props.personalDataOfWorker[0]}
+    }
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%', padding: 0}}>
         <div style={{height: '30px', margin: 0}}>
@@ -170,87 +231,101 @@ class AddressComponent extends Component{
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 1')}</div>
 
 
-              {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].address_road1 ?
-                <div><span>{this.props.personalDataOfWorker[0].address_road1}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+
+              {personalDataOfWorkerCopy && personalDataOfWorkerCopy.address_road1 && !this.state.editingAddress1 ?
+                <div><span>{personalDataOfWorkerCopy.address_road1}</span> 
+                  <button onClick={this.editAddress1.bind(this)}>EDIT</button>
+                </div>
                 :
                 <Field
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                  onBlur={() => {
+                    this.props.updatePersonalDataOfWorker(personalDataOfWorkerCopy)
+                    this.closeAllEdits()
+                  }}
                   name="address_road1"
                   type="text"
                   component={RoadCourtBuildingCountyNameComponent}
                 />
               }
-
-
               </div>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 2')}</div>
+                {personalDataOfWorkerCopy && personalDataOfWorkerCopy.address_road2 && !this.state.editingAddress2 ?
+                  <div><span>{personalDataOfWorkerCopy.address_road2}</span> 
 
-                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].address_road2 ?
-                  <div><span>{this.props.personalDataOfWorker[0].address_road2}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+
+                    <button onClick={this.editAddress2.bind(this)}>EDIT</button>
+
+
+
+                  </div>
                   :
-
                   <Field
-                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    onBlur={() => {
+                      this.props.updatePersonalDataOfWorker()
+                      this.closeAllEdits()
+                    }}
                     name="address_road2"
                     type="text"
                     component={RoadCourtBuildingCountyNameComponent}
                   />
                 }
-
-
-
               </div>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 3')}</div>
+                {personalDataOfWorkerCopy && personalDataOfWorkerCopy.address_road3 && !this.state.editingAddress3 ?
+                  <div><span>{personalDataOfWorkerCopy.address_road3}</span> 
 
-                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].address_road3 ?
-                  <div><span>{this.props.personalDataOfWorker[0].address_road3}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+
+                    <button onClick={this.editAddress3.bind(this)}>EDIT</button>
+
+
+
+                  </div>
                   :
-
-
                   <Field
-                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    onBlur={() => {
+                      this.props.updatePersonalDataOfWorker()
+                      this.closeAllEdits()
+                    }}
                     name="address_road3"
                     type="text"
                     component={RoadCourtBuildingCountyNameComponent}
                   />
-
                 }
-
               </div>
               <div style={{marginTop: '15px', marginBottom: '-4px'}}>
                 <div>{this.context.t('Postal code')}</div>
+                {personalDataOfWorkerCopy && personalDataOfWorkerCopy.postal_code && !this.state.editingPostalCode ?
+                  <div><span>{personalDataOfWorkerCopy.postal_code}</span>
 
 
-                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].postal_code ?
-                  <div><span>{this.props.personalDataOfWorker[0].postal_code}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+                    <button onClick={this.editPostalCode.bind(this)}>EDIT</button>
+
+
+
+                  </div>
                   :
-
-
                   this.postal_codeFields()
-
                 }
-
-
               </div>
-{/*              <div>
-                <div style={{marginTop: '10px'}}>Building name</div>
-                <Field
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
-                  name="building_name"
-                  type="text"
-                  component={RoadCourtBuildingCountyNameComponent}
-                />
-              </div>
-              <Field name="building_name" component={renderError} />*/}
             </div>
             <div style={{float: 'right', width: '50%', height: '100%'}}>
+              {personalDataOfWorkerCopy && personalDataOfWorkerCopy.house_no && !this.state.editingHouseNo ?
+                <div><div>House no: </div><span>{personalDataOfWorkerCopy.house_no}</span> 
 
-              {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].house_no ?
-                <div><div>House no: </div><span>{this.props.personalDataOfWorker[0].house_no}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+
+                  <button onClick={this.editHouseNo.bind(this)}>EDIT</button>
+
+
+
+                </div>
                 :
-
                 <div>
                   <div style={{marginBottom: "-30px"}}>{this.context.t('Do you live in a house or a flat?')}</div>
                   <div style={radiosParentDiv}>
@@ -263,47 +338,55 @@ class AddressComponent extends Component{
                     </div>
                   </div>
                 </div>
-
               }
-
-
               {this.houseOrFlatChosen()}
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Town')}</div>
+                {personalDataOfWorkerCopy && personalDataOfWorkerCopy.town && !this.state.editingTown ?
+                  <div><span>{personalDataOfWorkerCopy.town}</span> 
 
 
-                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].town ?
-                  <div><span>{this.props.personalDataOfWorker[0].town}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+                    <button onClick={this.editTown.bind(this)}>EDIT</button>
+
+
+
+                  </div>
                   :
-
                   <Field
-                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    onBlur={() => {
+                      this.props.updatePersonalDataOfWorker()
+                      this.closeAllEdits()
+                    }}
                     name="town"
                     type="text"
                     component={RoadCourtBuildingCountyNameComponent}
                   />
-
                 }
-
               </div>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('County')}</div>
+                {personalDataOfWorkerCopy && personalDataOfWorkerCopy.county && !this.state.editingCounty ?
+                  <div><span>{personalDataOfWorkerCopy.county}</span> 
 
 
-                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].county ?
-                  <div><span>{this.props.personalDataOfWorker[0].county}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+                    <button onClick={this.editCounty.bind(this)}>EDIT</button>
+
+
+
+                  </div>
                   :
-
-
                 <Field
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                    onBlur={() => {
+                      this.props.updatePersonalDataOfWorker()
+                      this.closeAllEdits()
+                    }}
                   name="county"
                   type="text"
                   component={RoadCourtBuildingCountyNameComponent}
                 />
-
               }
-
               </div>
             </div>
           </form>
@@ -343,4 +426,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(AddressComponent)
+export default connect(mapStateToProps, { updatePersonalDataOfWorker })(AddressComponent)

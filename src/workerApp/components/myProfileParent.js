@@ -57,7 +57,7 @@ class MyProfileParent extends Component{
             </Paper>
             <Paper style={style} zDepth={2} rounded={false}>
               <TaxComponent />
-              <div style={{marginTop: '400px'}}>
+              <div style={{marginTop: '250px'}}>
                 <Link to={`/${worker_id}/myprofilesubmitted`}>
                   <RaisedButton
                     type="submit"
