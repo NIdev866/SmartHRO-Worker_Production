@@ -11,3 +11,4 @@ export const COMPANIES = 'companies'
 export const ALL_CAMPAIGNS = 'all_campaigns'
 
 export const PERSONAL_DATA_OF_WORKER = 'personal_data_of_worker'
+export const UPDATE_PERSONAL_DATA_OF_WORKER = 'update_personal_data_of_worker'

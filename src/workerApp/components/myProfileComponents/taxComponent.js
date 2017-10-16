@@ -138,7 +138,7 @@ class TaxComponent extends Component{
             <div>{this.context.t('Birth date')}</div>
             <div>
                 <DatePicker
-                  onBlur={() => this.props.dispatch(submit('addressDetails'))}
+                  onBlur={() => this.props.dispatch(submit('taxDetails'))}
                   value={this.state.birthDate}
                   onChange={this.handleBirthDateChange}
                   formatDate={this.formatDate}

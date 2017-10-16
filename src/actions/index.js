@@ -11,7 +11,7 @@ import {
   NESTED_JOB_SECTORS,
   COMPANIES,
   ALL_CAMPAIGNS,
-  PERSONAL_DATA_OF_WORKER
+  PERSONAL_DATA_OF_WORKER,
 } from './types.js';
 
 
@@ -29,28 +29,48 @@ const ROOT_URL = 'http://ec2-54-77-236-165.eu-west-1.compute.amazonaws.com:3000'
 
 
 
-export function updatePersonalDataOfWorker(personalDataOfWorkerCopy){
+export function updateAddressDataOfWorker(fieldsToUpdate){
   const worker_id = localStorage.getItem('worker_id');
-
-  console.log('one')
-
   return function(dispatch){
-    axios.post(`http://localhost:3000/worker/update/${worker_id}`, {personalDataOfWorkerCopy})
+    axios.put(`http://localhost:3000/worker/add-address/${worker_id}`, fieldsToUpdate)
       .then(response => {
-
-          console.log('two')
-
-        fetchPersonalDataOfWorker()
+        dispatch(fetchPersonalDataOfWorker())
+        
       })
       .catch((err)=>{
         console.log(err)
-        fetchPersonalDataOfWorker()
       })
   }
-
 }
 
 
+export function updateBankDetailsDataOfWorker(fieldsToUpdate){
+  const worker_id = localStorage.getItem('worker_id');
+  return function(dispatch){
+    axios.put(`http://localhost:3000/worker/add-bankdetails/${worker_id}`, fieldsToUpdate)
+      .then(response => {
+        dispatch(fetchPersonalDataOfWorker())
+        
+      })
+      .catch((err)=>{
+        console.log(err)
+      })
+  }
+}
+
+export function updateTaxDataOfWorker(fieldsToUpdate){
+  const worker_id = localStorage.getItem('worker_id');
+  return function(dispatch){
+    axios.put(`http://localhost:3000/worker/add-personaltaxdata/${worker_id}`, fieldsToUpdate)
+      .then(response => {
+        dispatch(fetchPersonalDataOfWorker())
+        
+      })
+      .catch((err)=>{
+        console.log(err)
+      })
+  }
+}
 
 
 
@@ -68,11 +88,10 @@ export function updatePersonalDataOfWorker(personalDataOfWorkerCopy){
 export function fetchPersonalDataOfWorker(){
   const worker_id = localStorage.getItem('worker_id');
 
-            console.log('three')
-
   return function(dispatch){
     axios.get(`http://localhost:3000/worker/personal/${worker_id}`)
       .then(response => {
+
         dispatch({ type: PERSONAL_DATA_OF_WORKER, payload: response.data });
       })
       .catch((err)=>{
@@ -81,6 +100,31 @@ export function fetchPersonalDataOfWorker(){
       })
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export function fetchNestedJobSectors(){
   return function(dispatch){

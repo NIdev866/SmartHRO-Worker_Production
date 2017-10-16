@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { Route, Redirect } from 'react-router'
 
 
-function AddressSubmit(values){
+function BankDetailsSubmit(values){
 
   console.log(values)
 
@@ -14,4 +14,4 @@ function AddressSubmit(values){
 }
 
 
-export default AddressSubmit
+export default BankDetailsSubmit

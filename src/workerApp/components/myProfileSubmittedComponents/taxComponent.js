@@ -4,7 +4,7 @@ import { Field, reduxForm, formValueSelector } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
-import * as actions from '../../../actions';
+import { updateTaxDataOfWorker } from '../../../actions';
 import {change, submit} from 'redux-form'
 import validate from '../validate'
 import TextField from 'material-ui/TextField'
@@ -13,8 +13,6 @@ import ReactDom from "react-dom";
 import { RadioButton } from 'material-ui/RadioButton'
 import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
-
-import taxSubmit from './submitActions/taxSubmit'
 
 
 
@@ -55,10 +53,27 @@ class TaxComponent extends Component{
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   NIonChange(event) {
     event.target.value = event.target.value.toUpperCase()
     if (event.target.value.length === event.target.maxLength && event.target.id !== '10') {
       if (event.target.value.length === event.target.maxLength && event.target.id !== '9') {
+
+        console.log({id: parseInt(event.target.id, 10) + 1})
+
         this.refs[parseInt(event.target.id, 10) + 1].focus();
       }
       let stateToChange = `NI${event.target.id}`
@@ -77,35 +92,108 @@ class TaxComponent extends Component{
     let ref = 1
     for(let i = 0; i < 9; i++){
       let refStringified = ref.toString()
-      result.push(<TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text"
-        maxLength='1' ref={refStringified} style={{width: '8%', marginRight: '8px'}}name=""
-        onChange={this.NIonChange}/>)
+      if(i < 8){
+        result.push(<TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text"
+          maxLength='1' ref={refStringified} style={{width: '8%', marginRight: '8px'}}name=""
+          onChange={this.NIonChange}/>)
+      }
+      else{
+        result.push(<TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text"
+          maxLength='1' ref={refStringified} style={{width: '8%', marginRight: '8px'}}name=""
+            onBlur={(e) => {
+              let allNInumbers = []
+              for(let i = 0; i < 9; i++){
+                allNInumbers.push(this.state[`NI${i+1}`])
+              }
+              let allNInumbersJoined = allNInumbers.join('')
+
+              let bodyForUpdate = {
+                ni_number: allNInumbersJoined,
+                dob: this.personalDataOfWorkerCopy.dob,
+              }
+              this.props.updateTaxDataOfWorker(bodyForUpdate)
+              this.closeAllEdits()
+            }}
+          onChange={this.NIonChange}/>)
+      }
       ref++
     }
     return <div>{result}</div>
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   formatDate(date){
     return date.getFullYear() + "-" + ('0' + (date.getMonth()+1)).slice(-2) + "-" + ('0' + (date.getDate()+1)).slice(-2);
   }
   handleBirthDateChange(event, date){
+
+    console.log({dateeee: this.personalDataOfWorkerCopy})
+
     this.setState({
       birthDate: date
     }, ()=>{
       this.setState({
         birthDateFormatted: this.formatDate(this.state.birthDate)
       }, ()=>{
-        this.props.dispatch(change('taxDetails', 'dob', this.state.birthDateFormatted));
-        setTimeout(()=>{this.props.dispatch(submit('taxDetails'))}, 500)
-      })
+        
+          console.log({birthDateFormatted: this.state.birthDateFormatted})
+
+              let bodyForUpdate = {
+                ni_number: this.personalDataOfWorkerCopy.ni_number,
+                dob: this.state.birthDateFormatted,
+              }
+              this.props.updateTaxDataOfWorker(bodyForUpdate)
+              this.closeAllEdits()
+            }
+
+
+      )
     })
   }
 
 
 
-    handleEdit(e,){
-      e.preventDefault()
-      console.log({e})
-    }
+
+
+
+  handleEdit(e,){
+    e.preventDefault()
+    console.log({e})
+  }
+
+  editNInumber(proxy){
+    proxy.preventDefault()
+    this.setState({editingNInumber: true})
+  }
+
+  editDob(proxy){
+    proxy.preventDefault()
+    this.setState({editingDob: true})
+  }
+
+  closeAllEdits(){
+    this.setState({
+      editingNInumber: false,
+      editingDob: false
+    })
+  }
 
 
   render(){
@@ -131,7 +219,10 @@ class TaxComponent extends Component{
       width: "45px",
       marginLeft: "30px"
     }
-
+    let personalDataOfWorkerCopy = {}
+    if(this.props.personalDataOfWorker){
+      this.personalDataOfWorkerCopy = {...this.props.personalDataOfWorker[0]}
+    }
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%'}}>
 
@@ -142,28 +233,42 @@ class TaxComponent extends Component{
                 <div>{this.context.t('National Insurance number')}</div>
 
 
-                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].ni_number ?
-                  <div><span>{this.props.personalDataOfWorker[0].ni_number}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+
+
+
+                {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].ni_number && !this.state.editingNInumber ?
+                  <div><span>{this.props.personalDataOfWorker[0].ni_number}</span> 
+                    <button onClick={this.editNInumber.bind(this)}>EDIT</button>
+                  </div>
                   :
-
-
-                  this.NIfields()
-
+                  this.NIfields(this.personalDataOfWorkerCopy)
                 }
-
-
               </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
             <div style={{marginTop: '20px'}}>{this.context.t('Birth date')}</div>
 
 
-            {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].dob ?
-              <div><span>{this.props.personalDataOfWorker[0].dob}</span> <button onClick={this.handleEdit.bind(this)}>EDIT</button></div>
+            {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].dob && !this.state.editingDob ?
+              <div><span>{this.props.personalDataOfWorker[0].dob}</span> 
+                <button onClick={this.editDob.bind(this)}>EDIT</button>
+              </div>
               :
 
 
               <div>
                   <DatePicker
-                    onBlur={() => this.props.dispatch(submit('addressDetails'))}
                     value={this.state.birthDate}
                     onChange={this.handleBirthDateChange}
                     formatDate={this.formatDate}
@@ -188,9 +293,8 @@ TaxComponent.contextTypes = {
 TaxComponent = reduxForm({
   form: 'taxDetails',
   validate,
-  onSubmit: taxSubmit
 })(
-  connect(null, actions)(
+  connect(null)(
     connect(state => ({
       lang: state.i18nState.lang
     }))(TaxComponent)
@@ -203,4 +307,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(TaxComponent)
+export default connect(mapStateToProps, { updateTaxDataOfWorker })(TaxComponent)
