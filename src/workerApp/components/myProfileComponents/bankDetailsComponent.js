@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
-import { Field, reduxForm, formValueSelector } from 'redux-form';
+import { Field, reduxForm, formValueSelector, hasSubmitSucceeded } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
@@ -16,6 +16,9 @@ import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
 import MenuItem from 'material-ui/MenuItem'
 
+import CircularProgress from 'material-ui/CircularProgress';
+import {startSubmit, stopSubmit} from 'redux-form';
+import { bindActionCreators } from 'redux'
 
 const pay_method = [
   'BANK_TRANSFER',
@@ -49,6 +52,48 @@ class renderError extends Component{
 renderError.contextTypes = {
   t: PropTypes.func.isRequired
 }
+
+
+
+
+
+
+class LoadingIcon extends Component{
+  render(){
+    return(
+      <div>
+        <div>
+        {this.props.meta.submitting &&
+          <div style={{width: '125px', height: '25px', position: 'absolute', right: '30px', top: '10px'}}>
+            Submitting... <CircularProgress size={20} />
+          </div>
+        }
+      </div>
+      <div>
+        {this.props.submitSucceeded && !this.props.meta.submitting &&
+          <div style={{width: '165px', height: '25px', position: 'absolute', right: '30px', top: '10px', color: 'green'}}>
+            Submit succeeded <i className="material-icons">done</i>
+          </div>
+        }
+      </div>
+      </div>
+    )
+  }
+}
+
+LoadingIcon = connect(
+  state => ({
+    submitSucceeded: hasSubmitSucceeded('bankDetails')(state),
+  })
+)(LoadingIcon)
+
+
+
+
+
+
+
+
 
 class BankDetailsComponent extends Component{
   constructor(props){
@@ -147,6 +192,20 @@ class BankDetailsComponent extends Component{
 
 
 
+  handleSubmit(e) {
+      e.preventDefault();
+      this.props.setSubmittingState('bankDetails', true);
+      this.props.actions.submitForm()
+          .then((response) => {
+              this.props.setSubmittingState('bankDetails', false);
+              console.log('FINISHEDDDDD')
+          })
+          .catch((e)=>console.log(e))
+  }
+
+
+
+
   render(){
   	const { handleSubmit } = this.props;
     const radiosParentDiv = {
@@ -176,8 +235,12 @@ class BankDetailsComponent extends Component{
 
       <h3><u>{this.context.t('Bank Details')}</u></h3>
 
-        <form onSubmit={handleSubmit}>
+        <form handleSubmit={this.handleSubmit.bind(this)}   >
           <div style={{marginTop: '15px', marginBottom: '-4px'}}>
+
+        <Field name="loadingIcon" component={LoadingIcon} />
+
+
             <div>sortcode</div>
               {this.sortcodeFields()}
           </div>
@@ -225,11 +288,29 @@ BankDetailsComponent = reduxForm({
   validate,
   onSubmit: bankDetailsSubmit
 })(
-  connect(null, actions)(
-    connect(state => ({
-      lang: state.i18nState.lang
-    }))(BankDetailsComponent)
-  )
+  connect(state => ({
+    lang: state.i18nState.lang
+  }))(BankDetailsComponent)
 )
 
-export default BankDetailsComponent
+BankDetailsComponent = connect(
+  state => ({
+    submitSucceeded: hasSubmitSucceeded('bankDetails')(state),
+  })
+)(BankDetailsComponent)
+
+
+function mapDispatchToProps(dispatch) {
+    return ({
+        actions: bindActionCreators(actions, dispatch),
+        setSubmittingState: (form, isSubmitting) => {
+            if (isSubmitting === true) {
+                dispatch(startSubmit(form))
+            } else if (isSubmitting === false) {
+                dispatch(stopSubmit(form))
+            }
+        }
+    })
+}
+
+export default connect(null, mapDispatchToProps)(BankDetailsComponent)

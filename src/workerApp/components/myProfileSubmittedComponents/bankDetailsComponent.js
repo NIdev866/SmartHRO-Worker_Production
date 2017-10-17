@@ -1,11 +1,10 @@
 import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
-import { Field, reduxForm, formValueSelector } from 'redux-form';
+import { Field, reduxForm, formValueSelector, change, submit } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
 import { updateBankDetailsDataOfWorker } from '../../../actions';
-import {change, submit} from 'redux-form'
 import validate from '../validate'
 import TextField from 'material-ui/TextField'
 import AvatarCropper from "react-avatar-cropper";
@@ -278,7 +277,7 @@ class BankDetailsComponent extends Component{
           <div style={{marginTop: '15px', marginBottom: '-4px'}}>
             <div>sortcode</div>
             {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].sort_code && !this.state.editingSortcode ?
-              <div><span>{this.props.personalDataOfWorker[0].sort_code}</span> 
+              <div><span>{this.props.personalDataOfWorker[0].sort_code}</span>
                 <button onClick={this.editSortcode.bind(this)}>EDIT</button>
               </div>
               :
@@ -288,7 +287,7 @@ class BankDetailsComponent extends Component{
           <div style={{marginTop: '20px'}}>
             <div>Bank account number</div>
             {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].acc_no && !this.state.editingAccNo ?
-              <div><span>{this.props.personalDataOfWorker[0].acc_no}</span> 
+              <div><span>{this.props.personalDataOfWorker[0].acc_no}</span>
                 <button onClick={this.editBankAccountNumber.bind(this)}>EDIT</button>
               </div>
               :
@@ -297,7 +296,7 @@ class BankDetailsComponent extends Component{
           </div>
           <div style={{marginTop: '20px'}}>{this.context.t('Payment method')}</div>
           {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].pay_method && !this.state.editingPayMethod ?
-            <div><span>{this.props.personalDataOfWorker[0].pay_method}</span> 
+            <div><span>{this.props.personalDataOfWorker[0].pay_method}</span>
               <button onClick={this.editPayMethod.bind(this)}>EDIT</button>
             </div>
             :
@@ -327,7 +326,7 @@ class BankDetailsComponent extends Component{
           }
           <div style={{marginTop: '20px'}}>{this.context.t('Pay frequency')}</div>
           {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].pay_frequency && !this.state.editingPayFrequency ?
-            <div><span>{this.props.personalDataOfWorker[0].pay_frequency}</span> 
+            <div><span>{this.props.personalDataOfWorker[0].pay_frequency}</span>
               <button onClick={this.editPayFrequency.bind(this)}>EDIT</button>
             </div>
             :

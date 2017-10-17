@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
-import { Field, reduxForm, formValueSelector } from 'redux-form';
+import { Field, reduxForm, formValueSelector, hasSubmitSucceeded } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
@@ -15,7 +15,9 @@ import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
 
 import taxSubmit from './submitActions/taxSubmit'
-
+import CircularProgress from 'material-ui/CircularProgress';
+import {startSubmit, stopSubmit} from 'redux-form';
+import { bindActionCreators } from 'redux'
 
 
 
@@ -33,7 +35,52 @@ renderError.contextTypes = {
   t: PropTypes.func.isRequired
 }
 
-class TaxComponent extends Component{  
+
+
+
+
+
+
+class LoadingIcon extends Component{
+  render(){
+    return(
+      <div>
+        <div>
+        {this.props.meta.submitting &&
+          <div style={{width: '125px', height: '25px', position: 'absolute', right: '30px', top: '10px'}}>
+            Submitting... <CircularProgress size={20} />
+          </div>
+        }
+      </div>
+      <div>
+        {this.props.submitSucceeded && !this.props.meta.submitting &&
+          <div style={{width: '165px', height: '25px', position: 'absolute', right: '30px', top: '10px', color: 'green'}}>
+            Submit succeeded <i className="material-icons">done</i>
+          </div>
+        }
+      </div>
+      </div>
+    )
+  }
+}
+
+LoadingIcon = connect(
+  state => ({
+    submitSucceeded: hasSubmitSucceeded('taxDetails')(state),
+  })
+)(LoadingIcon)
+
+
+
+
+
+
+
+
+
+
+
+class TaxComponent extends Component{
   constructor(props){
     super(props)
     this.NIonChange = this.NIonChange.bind(this)
@@ -62,7 +109,7 @@ class TaxComponent extends Component{
         this.refs[parseInt(event.target.id, 10) + 1].focus();
       }
       let stateToChange = `NI${event.target.id}`
-      this.setState({[stateToChange]: event.target.value}, ()=>{ 
+      this.setState({[stateToChange]: event.target.value}, ()=>{
         let allNInumbers = []
         for(let i = 0; i < 9; i++){
           allNInumbers.push(this.state[`NI${i+1}`])
@@ -77,8 +124,8 @@ class TaxComponent extends Component{
     let ref = 1
     for(let i = 0; i < 9; i++){
       let refStringified = ref.toString()
-      result.push(<TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text" 
-        maxLength='1' ref={refStringified} style={{width: '8%', marginRight: '8px'}}name="" 
+      result.push(<TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text"
+        maxLength='1' ref={refStringified} style={{width: '8%', marginRight: '8px'}}name=""
         onChange={this.NIonChange}/>)
       ref++
     }
@@ -100,8 +147,23 @@ class TaxComponent extends Component{
     })
   }
 
+
+
+    handleSubmit(e) {
+        e.preventDefault();
+        this.props.setSubmittingState('taxDetails', true);
+        this.props.actions.submitForm()
+            .then((response) => {
+                this.props.setSubmittingState('taxDetails', false);
+                console.log('FINISHEDDDDD')
+            })
+            .catch((e)=>console.log(e))
+    }
+
+
+
   render(){
-  	const { handleSubmit } = this.props;   
+  	const { handleSubmit } = this.props;
     const radiosParentDiv = {
       textAlign: "center",
       margin: "0 auto",
@@ -127,14 +189,16 @@ class TaxComponent extends Component{
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%'}}>
 
+        <Field name="loadingIcon" component={LoadingIcon} />
+
       <h3><u>{this.context.t('Tax')}</u></h3>
 
-          <form onSubmit={handleSubmit}>
+          <form handleSubmit={this.handleSubmit.bind(this)}>
               <div>
                 <div>{this.context.t('National Insurance number')}</div>
                   {this.NIfields()}
               </div>
-            <Field name="ni_number" component={renderError} />            
+            <Field name="ni_number" component={renderError} />
             <div>{this.context.t('Birth date')}</div>
             <div>
                 <DatePicker
@@ -157,6 +221,12 @@ TaxComponent.contextTypes = {
   t: PropTypes.func.isRequired
 }
 
+TaxComponent = connect(
+  state => ({
+    submitSucceeded: hasSubmitSucceeded('taxDetails')(state),
+  })
+)(TaxComponent)
+
 TaxComponent = reduxForm({
   form: 'taxDetails',
   validate,
@@ -169,13 +239,17 @@ TaxComponent = reduxForm({
   )
 )
 
-export default TaxComponent
+function mapDispatchToProps(dispatch) {
+    return ({
+        actions: bindActionCreators(actions, dispatch),
+        setSubmittingState: (form, isSubmitting) => {
+            if (isSubmitting === true) {
+                dispatch(startSubmit(form))
+            } else if (isSubmitting === false) {
+                dispatch(stopSubmit(form))
+            }
+        }
+    })
+}
 
-
-
-
-
-
-
-
-
+export default connect(null, mapDispatchToProps)(TaxComponent)

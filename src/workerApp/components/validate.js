@@ -68,6 +68,41 @@ const validate = values => {
   if (!values.address_road1) {
     errors.address_road1 = 'Address line 1 required'
   }
+  else if (values.address_road1.length > 15) {
+    errors.address_road1 = 'Address line too long'
+  }
+  else if (values.address_road1.match(/[0-9]/g)){
+    errors.address_road1 = 'Invalid Address'
+  }
+
+  if (values.address_road2 && values.address_road2.length > 15) {
+    errors.address_road2 = 'Address line too long'
+  }
+  else if (values.address_road2 && values.address_road2.match(/[0-9]/g)){
+    errors.address_road2 = 'Invalid Address'
+  }
+
+  if (values.address_road3 && values.address_road3.length > 15) {
+    errors.address_road3 = 'Address line too long'
+  }
+  else if (values.address_road3 && values.address_road3.match(/[0-9]/g)){
+    errors.address_road3 = 'Invalid Address'
+  }
+
+  if (values.town && values.town.length > 15) {
+    errors.town = 'Address line too long'
+  }
+  else if (values.town && values.town.match(/[0-9]/g)){
+    errors.town = 'Invalid Address'
+  }
+
+  if (values.county && values.county.length > 15) {
+    errors.county = 'Address line too long'
+  }
+  else if (values.county && values.county.match(/[0-9]/g)){
+    errors.county = 'Invalid Address'
+  }
+
   if (!values.postal_code) {
     errors.postal_code = 'Postal code required'
   }
@@ -89,7 +124,7 @@ const validate = values => {
 
   if(!values.acc_no){
     errors.acc_no = 'Bank account number required'
-  }  
+  }
   else if(!/[0-9]/g.test(values.acc_no.substring(0,1)) && values.acc_no.substring(0,1) !== ''){
     errors.acc_no = 'Invalid bank account number'
   }
@@ -118,15 +153,15 @@ const validate = values => {
     errors.acc_no = 'Bank account number required'
   }
 
-  
+
 
   if (!values.dob) {
     errors.dob = 'Birth date required'
   }
-  
-  
 
-  
+
+
+
 
 
 

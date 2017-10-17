@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
-import { Field, reduxForm, formValueSelector } from 'redux-form';
+import { Field, reduxForm, formValueSelector, hasSubmitSucceeded } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
@@ -10,15 +10,14 @@ import validate from '../validate'
 import TextField from 'material-ui/TextField'
 import AvatarCropper from "react-avatar-cropper";
 import ReactDom from "react-dom";
-
-
 import addresssubmit from "./submitActions/addressSubmit"
-
-
 import { RadioButton } from 'material-ui/RadioButton'
 import { RadioButtonGroup, SelectField } from "redux-form-material-ui"
 import DatePicker from 'material-ui/DatePicker';
 
+import CircularProgress from 'material-ui/CircularProgress';
+import {startSubmit, stopSubmit} from 'redux-form';
+import { bindActionCreators } from 'redux'
 
 
 
@@ -30,13 +29,25 @@ const HouseFlatNumberComponent = ({input, dispatch})=>(
   />
 )
 
-const RoadCourtBuildingCountyNameComponent = ({input, dispatch})=>(
-  <TextField inputStyle={{textAlign: 'left'}} type="text"
-          onBlur={() => dispatch(submit('addressDetails'))}
-    maxLength='70' style={{width: '50%', marginRight: '0px'}}
-    {...input}
-  />
-)
+
+
+
+class RoadCourtBuildingCountyNameComponent extends Component{
+  render(){
+    return(
+      <div>
+        <TextField inputStyle={{textAlign: 'left'}} type="text"
+                onBlur={() => this.props.dispatch(submit('addressDetails'))}
+          maxLength='70' style={{width: '50%', marginRight: '0px'}}
+          {...this.props.input}
+        />
+      </div>
+    )
+  }
+}
+
+
+
 
 const HouseChosen = ({dispatch, context})=>(
   <div>
@@ -88,6 +99,50 @@ renderError.contextTypes = {
   t: PropTypes.func.isRequired
 }
 
+
+
+
+
+
+
+
+class LoadingIcon extends Component{
+  render(){
+    return(
+      <div>
+        <div>
+        {this.props.meta.submitting &&
+          <div style={{width: '125px', height: '25px', position: 'absolute', right: '30px', top: '10px'}}>
+            Submitting... <CircularProgress size={20} />
+          </div>
+        }
+      </div>
+      <div>
+        {this.props.submitSucceeded && !this.props.meta.submitting &&
+          <div style={{width: '165px', height: '25px', position: 'absolute', right: '30px', top: '10px', color: 'green'}}>
+            Submit succeeded <i className="material-icons">done</i>
+          </div>
+        }
+      </div>
+      </div>
+    )
+  }
+}
+
+LoadingIcon = connect(
+  state => ({
+    submitSucceeded: hasSubmitSucceeded('addressDetails')(state),
+  })
+)(LoadingIcon)
+
+
+
+
+
+
+
+
+
 class AddressComponent extends Component{
   constructor(props){
     super(props)
@@ -119,7 +174,6 @@ class AddressComponent extends Component{
         result.push(
           <span>
           <TextField id={refStringified} inputStyle={{textAlign: 'center'}} type="text"
-          onBlur={() => this.props.dispatch(submit('addressDetails'))}
           maxLength='5' ref={refStringified} style={{width: '15%', marginRight: '0px'}}name=""
           onChange={this.postal_codeOnChange}/>
             &mdash;
@@ -146,7 +200,29 @@ class AddressComponent extends Component{
       return <FlatChosen dispatch={this.props.dispatch} context={this.context}/>
     }
   }
+
+
+
+  handleSubmit(e) {
+      e.preventDefault();
+      this.props.setSubmittingState('addressDetails', true);
+      this.props.actions.submitForm()
+          .then((response) => {
+              this.props.setSubmittingState('addressDetails', false);
+              console.log('FINISHEDDDDD')
+          })
+          .catch((e)=>console.log(e))
+  }
+
+
+
+
+
+
   render(){
+
+
+
   	const { handleSubmit } = this.props;
     const radiosParentDiv = {
       textAlign: "center",
@@ -172,10 +248,15 @@ class AddressComponent extends Component{
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%', padding: 0}}>
         <div style={{height: '30px', margin: 0}}>
+
+
+          <Field name="loadingIcon" component={LoadingIcon} />
+
+
         <h3 style={{margin: 0, padding: 0, paddingTop: '10px'}}><u>{this.context.t('Address')}</u></h3>
         </div>
         <div style={{position: 'relative', display: 'inline-block', width: '100%', height: 'calc(100% - 30px)'}}>
-          <form>
+          <form handleSubmit={this.handleSubmit.bind(this)}>
             <div style={{float: 'left', width: '50%', height: '100%', }}>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 1')}</div>
@@ -224,7 +305,7 @@ class AddressComponent extends Component{
               <Field name="building_name" component={renderError} />*/}
             </div>
             <div style={{float: 'right', width: '50%', height: '100%'}}>
-              <div style={{marginBottom: "-30px"}}>{this.context.t('Do you live in a house or a flat?')}</div>
+              <div style={{marginBottom: "-30px", marginTop: '10px'}}>{this.context.t('Do you live in a house or a flat?')}</div>
               <div style={radiosParentDiv}>
                 <Field style={houseFlatChooserStyle} name="house_or_flat" component={RadioButtonGroup}>
                   <RadioButton disableTouchRipple style={houseStyle} value="house"/>
@@ -288,4 +369,24 @@ AddressComponent = connect(
   }))(AddressComponent)
 )
 
-export default AddressComponent
+AddressComponent = connect(
+  state => ({
+    submitSucceeded: hasSubmitSucceeded('addressDetails')(state),
+  })
+)(AddressComponent)
+
+
+function mapDispatchToProps(dispatch) {
+    return ({
+        actions: bindActionCreators(actions, dispatch),
+        setSubmittingState: (form, isSubmitting) => {
+            if (isSubmitting === true) {
+                dispatch(startSubmit(form))
+            } else if (isSubmitting === false) {
+                dispatch(stopSubmit(form))
+            }
+        }
+    })
+}
+
+export default connect(null, mapDispatchToProps)(AddressComponent)

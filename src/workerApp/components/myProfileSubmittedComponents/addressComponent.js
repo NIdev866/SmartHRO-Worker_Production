@@ -1,11 +1,10 @@
 import React, { Component, PropTypes } from "react"
 import RaisedButton from 'material-ui/RaisedButton'
-import { Field, reduxForm, formValueSelector } from 'redux-form';
+import { Field, reduxForm, formValueSelector, change, submit } from 'redux-form';
 import styles from '../form_material_styles'
 import renderField from '../../renderField'
 import { connect } from 'react-redux';
 import { updateAddressDataOfWorker } from '../../../actions';
-import {change, submit} from 'redux-form'
 import validate from '../validate'
 import TextField from 'material-ui/TextField'
 import AvatarCropper from "react-avatar-cropper";
@@ -16,11 +15,7 @@ import DatePicker from 'material-ui/DatePicker';
 
 
 
-
-
-
-
-class RoadCourtBuildingCountyNameComponent extends Component{
+class MyTextField extends Component{
   render(){
     return(
       <TextField inputStyle={{textAlign: 'left'}} type="text"
@@ -32,22 +27,11 @@ class RoadCourtBuildingCountyNameComponent extends Component{
   }
 }
 
-
-
-
-
-
-
-
-
 const HouseChosen = ({dispatch, context, closeAllEdits, updateAddressDataOfWorker, personalDataOfWorkerCopy})=>(
   <div>
     <div style={{marginTop: '15px', marginBottom: '-4px'}}>
     <div>{context.t('House number')}</div>
-
-
     <TextField inputStyle={{textAlign: 'center'}} type="text"
-
       onBlur={(e) => {
         let bodyForUpdate = {
           address_road1: personalDataOfWorkerCopy.address_road1,
@@ -62,7 +46,6 @@ const HouseChosen = ({dispatch, context, closeAllEdits, updateAddressDataOfWorke
         updateAddressDataOfWorker(bodyForUpdate)
         closeAllEdits()
       }}
-
       maxLength='5' style={{width: '15%', marginRight: '0px'}}
     />
     </div>
@@ -86,17 +69,25 @@ const FlatChosen = ({dispatch, context, closeAllEdits, updateAddressDataOfWorker
   </div>
 )
 
+class renderError extends Component{
+  render(){
+    return(
+      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
+        {this.props.meta.error && this.props.meta.error == "Address line 1 required" ? <span>{this.context.t('Address line 1 required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Postal code required" ? <span>{this.context.t('Postal code required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "House or flat required" ? <span>{this.context.t('House or flat required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "House number required" ? <span>{this.context.t('House number required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Flat number required" ? <span>{this.context.t('Flat number required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Address line too long" ? <span>{this.context.t('Address line too long')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == "Invalid Address" ? <span>{this.context.t('Invalid Address')}</span> : ""}
+      </div>
+    )
+  }
+}
 
-
-
-
-
-
-
-
-
-
-
+renderError.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 class AddressComponent extends Component{
   constructor(props){
@@ -138,23 +129,25 @@ class AddressComponent extends Component{
       }
       else{
         result.push(
-          <TextField 
+          <TextField
             id={refStringified}
             inputStyle={{textAlign: 'center'}} type="text"
             onBlur={(e) => {
+              let allPostal_codeBoxes = []
+              for(let i = 20; i < 22; i++){
+                allPostal_codeBoxes.push(this.state[`postal_code${i+1}`])
+              }
+              let allPostal_codeBoxesJoined = allPostal_codeBoxes.join('')
               let bodyForUpdate = {
                 address_road1: personalDataOfWorkerCopy.address_road1,
                 address_road2: personalDataOfWorkerCopy.address_road2,
                 address_road3: personalDataOfWorkerCopy.address_road3,
-
-                postal_code: 'sl22rr', //not changeable with /worker/add-address/${worker_id}''
-
+                postal_code: allPostal_codeBoxesJoined,
                 house_no: personalDataOfWorkerCopy.house_no,
                 flat_no: personalDataOfWorkerCopy.flat_no,
                 town: personalDataOfWorkerCopy.town,
                 county: personalDataOfWorkerCopy.county,
               }
-
               this.props.updateAddressDataOfWorker(bodyForUpdate)
               this.closeAllEdits()
             }}
@@ -164,56 +157,45 @@ class AddressComponent extends Component{
       }
       ref++
     }
-    return <div>{result}</div>
+    return <div>
+      {result}
+      <Field name="postal_code" component={renderError} />
+    </div>
   }
-
-
-
-
-
-
-
-
-
-
-
-
+  handleSubmit(e) {
+      e.preventDefault();
+      this.props.setSubmittingState('addressDetails', true);
+      this.props.actions.submitForm()
+          .then((response) => {
+              this.props.setSubmittingState('addressDetails', false);
+              console.log('FINISHEDDDDD')
+          })
+          .catch((e)=>console.log(e))
+  }
   houseOrFlatChosen(personalDataOfWorkerCopy){
-
-    if(this.state.editingHouseNo){
-
+    console.log('one')
+    if(!this.state.editingHouseNo){
+      console.log('two')
       if(this.props.house_or_flat === "house"){
-        return <HouseChosen 
-          closeAllEdits={this.closeAllEdits} 
-          dispatch={this.props.dispatch} 
+        return <HouseChosen
+          closeAllEdits={this.closeAllEdits}
+          dispatch={this.props.dispatch}
           context={this.context}
           updateAddressDataOfWorker={this.props.updateAddressDataOfWorker}
           personalDataOfWorkerCopy={personalDataOfWorkerCopy}
         />
       }
       else if(this.props.house_or_flat === "flat"){
-        return <FlatChosen 
-          closeAllEdits={this.closeAllEdits} 
-          dispatch={this.props.dispatch} 
+        return <FlatChosen
+          closeAllEdits={this.closeAllEdits}
+          dispatch={this.props.dispatch}
           context={this.context}
           updateAddressDataOfWorker={this.props.updateAddressDataOfWorker}
           personalDataOfWorkerCopy={personalDataOfWorkerCopy}
         />
       }
-
     }
   }
-
-
-
-
-
-
-
-
-
-
-
   editAddress1(proxy){
     proxy.preventDefault()
     this.setState({editingAddress1: true})
@@ -255,8 +237,6 @@ class AddressComponent extends Component{
     })
   }
   render(){
-
-
   	const { handleSubmit } = this.props;
     const radiosParentDiv = {
       textAlign: "center",
@@ -289,84 +269,102 @@ class AddressComponent extends Component{
         <h3 style={{margin: 0, padding: 0, paddingTop: '10px'}}><u>{this.context.t('Address')}</u></h3>
         </div>
         <div style={{position: 'relative', display: 'inline-block', width: '100%', height: 'calc(100% - 30px)'}}>
-          <form>
+          <form handleSubmit={this.handleSubmit.bind(this)}>
             <div style={{float: 'left', width: '50%', height: '100%', }}>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 1')}</div>
                 {personalDataOfWorkerCopy && personalDataOfWorkerCopy.address_road1 && !this.state.editingAddress1 ?
-                  <div><span>{personalDataOfWorkerCopy.address_road1}</span> 
+                  <div><span>{personalDataOfWorkerCopy.address_road1}</span>
                     <button onClick={this.editAddress1.bind(this)}>EDIT</button>
                   </div>
                   :
-                  <TextField inputStyle={{textAlign: 'left'}} type="text"
-                    onBlur={(e) => {
-                      let bodyForUpdate = {
-                        address_road1: e.target.value,
-                        address_road2: personalDataOfWorkerCopy.address_road2,
-                        address_road3: personalDataOfWorkerCopy.address_road3,
-                        postal_code: personalDataOfWorkerCopy.postal_code,
-                        house_no: personalDataOfWorkerCopy.house_no,
-                        flat_no: personalDataOfWorkerCopy.flat_no,
-                        town: personalDataOfWorkerCopy.town,
-                        county: personalDataOfWorkerCopy.county,
-                      }
-                      this.props.updateAddressDataOfWorker(bodyForUpdate)
-                      this.closeAllEdits()
-                    }}
-                    maxLength='70' style={{width: '50%', marginRight: '0px'}}
-                  />
+                  <div>
+                    <Field
+                      onBlur={(e) => {
+                        let bodyForUpdate = {
+                          address_road1: e.target.value,
+                          address_road2: personalDataOfWorkerCopy.address_road2,
+                          address_road3: personalDataOfWorkerCopy.address_road3,
+                          postal_code: personalDataOfWorkerCopy.postal_code,
+                          house_no: personalDataOfWorkerCopy.house_no,
+                          flat_no: personalDataOfWorkerCopy.flat_no,
+                          town: personalDataOfWorkerCopy.town,
+                          county: personalDataOfWorkerCopy.county,
+                        }
+                        this.props.updateAddressDataOfWorker(bodyForUpdate)
+                        this.closeAllEdits()
+                        this.props.dispatch(submit('addressDetails'))
+                      }}
+                      name="address_road1"
+                      type="text"
+                      component={MyTextField}
+                    />
+                    <Field name="address_road1" component={renderError} />
+                  </div>
                 }
               </div>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 2')}</div>
                 {personalDataOfWorkerCopy && personalDataOfWorkerCopy.address_road2 && !this.state.editingAddress2 ?
-                  <div><span>{personalDataOfWorkerCopy.address_road2}</span> 
+                  <div><span>{personalDataOfWorkerCopy.address_road2}</span>
                     <button onClick={this.editAddress2.bind(this)}>EDIT</button>
                   </div>
                   :
-                  <TextField inputStyle={{textAlign: 'left'}} type="text"
-                    onBlur={(e) => {
-                      let bodyForUpdate = {
-                        address_road1: personalDataOfWorkerCopy.address_road1,
-                        address_road2: e.target.value,
-                        address_road3: personalDataOfWorkerCopy.address_road3,
-                        postal_code: personalDataOfWorkerCopy.postal_code,
-                        house_no: personalDataOfWorkerCopy.house_no,
-                        flat_no: personalDataOfWorkerCopy.flat_no,
-                        town: personalDataOfWorkerCopy.town,
-                        county: personalDataOfWorkerCopy.county,
-                      }
-                      this.props.updateAddressDataOfWorker(bodyForUpdate)
-                      this.closeAllEdits()
-                    }}
-                    maxLength='70' style={{width: '50%', marginRight: '0px'}}
-                  />
+                  <div>
+                    <Field
+                      onBlur={(e) => {
+                        let bodyForUpdate = {
+                          address_road1: personalDataOfWorkerCopy.address_road1,
+                          address_road2: e.target.value,
+                          address_road3: personalDataOfWorkerCopy.address_road3,
+                          postal_code: personalDataOfWorkerCopy.postal_code,
+                          house_no: personalDataOfWorkerCopy.house_no,
+                          flat_no: personalDataOfWorkerCopy.flat_no,
+                          town: personalDataOfWorkerCopy.town,
+                          county: personalDataOfWorkerCopy.county,
+                        }
+                        this.props.updateAddressDataOfWorker(bodyForUpdate)
+                        this.closeAllEdits()
+                        this.props.dispatch(submit('addressDetails'))
+                      }}
+                      name="address_road2"
+                      type="text"
+                      component={MyTextField}
+                    />
+                    <Field name="address_road2" component={renderError} />
+                  </div>
                 }
               </div>
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Address line 3')}</div>
                 {personalDataOfWorkerCopy && personalDataOfWorkerCopy.address_road3 && !this.state.editingAddress3 ?
-                  <div><span>{personalDataOfWorkerCopy.address_road3}</span> 
+                  <div><span>{personalDataOfWorkerCopy.address_road3}</span>
                     <button onClick={this.editAddress3.bind(this)}>EDIT</button>
                   </div>
                   :
-                  <TextField inputStyle={{textAlign: 'left'}} type="text"
-                    onBlur={(e) => {
-                      let bodyForUpdate = {
-                        address_road1: personalDataOfWorkerCopy.address_road1,
-                        address_road2: personalDataOfWorkerCopy.address_road2,
-                        address_road3: e.target.value,
-                        postal_code: personalDataOfWorkerCopy.postal_code,
-                        house_no: personalDataOfWorkerCopy.house_no,
-                        flat_no: personalDataOfWorkerCopy.flat_no,
-                        town: personalDataOfWorkerCopy.town,
-                        county: personalDataOfWorkerCopy.county,
-                      }
-                      this.props.updateAddressDataOfWorker(bodyForUpdate)
-                      this.closeAllEdits()
-                    }}
-                    maxLength='70' style={{width: '50%', marginRight: '0px'}}
-                  />
+                  <div>
+                    <Field
+                      onBlur={(e) => {
+                        let bodyForUpdate = {
+                          address_road1: personalDataOfWorkerCopy.address_road1,
+                          address_road2: personalDataOfWorkerCopy.address_road2,
+                          address_road3: e.target.value,
+                          postal_code: personalDataOfWorkerCopy.postal_code,
+                          house_no: personalDataOfWorkerCopy.house_no,
+                          flat_no: personalDataOfWorkerCopy.flat_no,
+                          town: personalDataOfWorkerCopy.town,
+                          county: personalDataOfWorkerCopy.county,
+                        }
+                        this.props.updateAddressDataOfWorker(bodyForUpdate)
+                        this.closeAllEdits()
+                        this.props.dispatch(submit('addressDetails'))
+                      }}
+                      name="address_road3"
+                      type="text"
+                      component={MyTextField}
+                    />
+                    <Field name="address_road3" component={renderError} />
+                  </div>
                 }
               </div>
               <div style={{marginTop: '15px', marginBottom: '-4px'}}>
@@ -381,23 +379,13 @@ class AddressComponent extends Component{
               </div>
             </div>
             <div style={{float: 'right', width: '50%', height: '100%'}}>
-
-
-
-
-
-
-
-
-              {personalDataOfWorkerCopy && personalDataOfWorkerCopy.house_no && !this.state.editingHouseNo ? 
+              {personalDataOfWorkerCopy && personalDataOfWorkerCopy.house_no && !this.state.editingHouseNo ?
                 <div>
-                  <div><div>House no: </div><span>{personalDataOfWorkerCopy.house_no}</span> 
+                  <div><div>House no: </div><span>{personalDataOfWorkerCopy.house_no}</span>
                     <button onClick={this.editHouseNo.bind(this)}>EDIT</button>
                   </div>
                 </div>
-
                 :
-
                 <div>
                   <div style={{marginBottom: "-30px"}}>{this.context.t('Do you live in a house or a flat?')}</div>
                   <div style={radiosParentDiv}>
@@ -410,76 +398,68 @@ class AddressComponent extends Component{
                     </div>
                   </div>
                 </div>
-
               }
-
               {this.houseOrFlatChosen(personalDataOfWorkerCopy)}
-
-
-
-
-
-
-
-
-
-
               <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('Town')}</div>
                 {personalDataOfWorkerCopy && personalDataOfWorkerCopy.town && !this.state.editingTown ?
-                  <div><span>{personalDataOfWorkerCopy.town}</span> 
+                  <div><span>{personalDataOfWorkerCopy.town}</span>
                     <button onClick={this.editTown.bind(this)}>EDIT</button>
                   </div>
                   :
-                  <TextField inputStyle={{textAlign: 'left'}} type="text"
-                    onBlur={(e) => {
-                      let bodyForUpdate = {
-                        address_road1: personalDataOfWorkerCopy.address_road1,
-                        address_road2: personalDataOfWorkerCopy.address_road2,
-                        address_road3: personalDataOfWorkerCopy.address_road3,
-                        postal_code: personalDataOfWorkerCopy.postal_code,
-                        house_no: personalDataOfWorkerCopy.house_no,
-                        flat_no: personalDataOfWorkerCopy.flat_no,
-
-                          //NOT WORKING
-                        town: e.target.value,
-
-                        county: personalDataOfWorkerCopy.county,
-                      }
-
-                        
-
-                      this.props.updateAddressDataOfWorker(bodyForUpdate)
-                      this.closeAllEdits()
-                    }}
-                    maxLength='70' style={{width: '50%', marginRight: '0px'}}
-                  />
+                  <div>
+                    <Field
+                      onBlur={(e) => {
+                        let bodyForUpdate = {
+                          address_road1: personalDataOfWorkerCopy.address_road1,
+                          address_road2: personalDataOfWorkerCopy.address_road2,
+                          address_road3: personalDataOfWorkerCopy.address_road3,
+                          postal_code: personalDataOfWorkerCopy.postal_code,
+                          house_no: personalDataOfWorkerCopy.house_no,
+                          flat_no: personalDataOfWorkerCopy.flat_no,
+                          town: e.target.value,
+                          county: personalDataOfWorkerCopy.county,
+                        }
+                        this.props.updateAddressDataOfWorker(bodyForUpdate)
+                        this.closeAllEdits()
+                      }}
+                      name="town"
+                      type="text"
+                      component={MyTextField}
+                    />
+                    <Field name="town" component={renderError} />
+                  </div>
                 }
               </div>
-              <div> 
+              <div>
                 <div style={{marginTop: '10px'}}>{this.context.t('County')}</div>
                 {personalDataOfWorkerCopy && personalDataOfWorkerCopy.county && !this.state.editingCounty ?
-                  <div><span>{personalDataOfWorkerCopy.county}</span> 
+                  <div><span>{personalDataOfWorkerCopy.county}</span>
                     <button onClick={this.editCounty.bind(this)}>EDIT</button>
                   </div>
                   :
-                  <TextField inputStyle={{textAlign: 'left'}} type="text"
-                    onBlur={(e) => {
-                      let bodyForUpdate = {
-                        address_road1: personalDataOfWorkerCopy.address_road1,
-                        address_road2: personalDataOfWorkerCopy.address_road2,
-                        address_road3: personalDataOfWorkerCopy.address_road3,
-                        postal_code: personalDataOfWorkerCopy.postal_code,
-                        house_no: personalDataOfWorkerCopy.house_no,
-                        flat_no: personalDataOfWorkerCopy.flat_no,
-                        town: personalDataOfWorkerCopy.town,
-                        county: e.target.value,
-                      }
-                      this.props.updateAddressDataOfWorker(bodyForUpdate)
-                      this.closeAllEdits()
-                    }}
-                    maxLength='70' style={{width: '50%', marginRight: '0px'}}
-                  />
+                  <div>
+                    <Field
+                      onBlur={(e) => {
+                        let bodyForUpdate = {
+                          address_road1: personalDataOfWorkerCopy.address_road1,
+                          address_road2: personalDataOfWorkerCopy.address_road2,
+                          address_road3: personalDataOfWorkerCopy.address_road3,
+                          postal_code: personalDataOfWorkerCopy.postal_code,
+                          house_no: personalDataOfWorkerCopy.house_no,
+                          flat_no: personalDataOfWorkerCopy.flat_no,
+                          town: personalDataOfWorkerCopy.town,
+                          county: e.target.value,
+                        }
+                        this.props.updateAddressDataOfWorker(bodyForUpdate)
+                        this.closeAllEdits()
+                      }}
+                      name="county"
+                      type="text"
+                      component={MyTextField}
+                    />
+                    <Field name="county" component={renderError} />
+                  </div>
               }
               </div>
             </div>
@@ -520,3 +500,27 @@ function mapStateToProps(state) {
 }
 
 export default connect(mapStateToProps, { updateAddressDataOfWorker })(AddressComponent)
+
+
+
+
+
+
+
+/* <TextField inputStyle={{textAlign: 'left'}} type="text"
+  onBlur={(e) => {
+    let bodyForUpdate = {
+      address_road1: e.target.value,
+      address_road2: personalDataOfWorkerCopy.address_road2,
+      address_road3: personalDataOfWorkerCopy.address_road3,
+      postal_code: personalDataOfWorkerCopy.postal_code,
+      house_no: personalDataOfWorkerCopy.house_no,
+      flat_no: personalDataOfWorkerCopy.flat_no,
+      town: personalDataOfWorkerCopy.town,
+      county: personalDataOfWorkerCopy.county,
+    }
+    this.props.updateAddressDataOfWorker(bodyForUpdate)
+    this.closeAllEdits()
+  }}
+  maxLength='70' style={{width: '50%', marginRight: '0px'}}
+/> */

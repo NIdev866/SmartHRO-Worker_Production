@@ -35,7 +35,7 @@ export function updateAddressDataOfWorker(fieldsToUpdate){
     axios.put(`http://localhost:3000/worker/add-address/${worker_id}`, fieldsToUpdate)
       .then(response => {
         dispatch(fetchPersonalDataOfWorker())
-        
+
       })
       .catch((err)=>{
         console.log(err)
@@ -50,7 +50,7 @@ export function updateBankDetailsDataOfWorker(fieldsToUpdate){
     axios.put(`http://localhost:3000/worker/add-bankdetails/${worker_id}`, fieldsToUpdate)
       .then(response => {
         dispatch(fetchPersonalDataOfWorker())
-        
+
       })
       .catch((err)=>{
         console.log(err)
@@ -61,10 +61,10 @@ export function updateBankDetailsDataOfWorker(fieldsToUpdate){
 export function updateTaxDataOfWorker(fieldsToUpdate){
   const worker_id = localStorage.getItem('worker_id');
   return function(dispatch){
-    axios.put(`http://localhost:3000/worker/add-personaltaxdata/${worker_id}`, fieldsToUpdate)
+    axios.put(`http://localhost:3000/${worker_id}`, fieldsToUpdate)
       .then(response => {
         dispatch(fetchPersonalDataOfWorker())
-        
+
       })
       .catch((err)=>{
         console.log(err)

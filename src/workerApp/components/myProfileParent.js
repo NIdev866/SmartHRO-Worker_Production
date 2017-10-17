@@ -36,15 +36,25 @@ class MyProfileParent extends Component{
     return(
       <div style={{overflow: 'hidden', margin: '0', width: '100vw', height: 'calc(100vh - 45px'}}>
 
+        <div style={{marginTop: '250px', backgroundColor: 'red', position: 'absolute', right: '40px', bottom: '70px'}}>
+          <Link to={`/${worker_id}/myprofilesubmitted`}>
+            <RaisedButton
+              type="submit"
+              label='Submit'
+              primary={true}
+            />
+          </Link>
+        </div>
+
         {!this.props.authenticated ?
           <Redirect to="/login"/>
           :
           <div>
           <div>
             <Paper style={style} zDepth={2} rounded={false}>
-              <div style={{width: '25px', height: '25px', position: 'absolute', right: '10px', top: '10px'}}>
+              {/* <div style={{width: '25px', height: '25px', position: 'absolute', right: '10px', top: '10px'}}>
                 <CircularProgress size={20} />
-              </div>
+              </div> */}
               <PersonalDetailsComponent />
             </Paper>
             <Paper style={style} zDepth={2} rounded={false}>
@@ -57,15 +67,6 @@ class MyProfileParent extends Component{
             </Paper>
             <Paper style={style} zDepth={2} rounded={false}>
               <TaxComponent />
-              <div style={{marginTop: '250px'}}>
-                <Link to={`/${worker_id}/myprofilesubmitted`}>
-                  <RaisedButton
-                    type="submit"
-                    label='Submit'
-                    primary={true}
-                  />
-                </Link>
-              </div>
             </Paper>
           </div>
           </div>
