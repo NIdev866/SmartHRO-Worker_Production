@@ -27,6 +27,8 @@ import I18n from "redux-i18n"
 import {translations} from "./translations"
 
 
+var Nav = require("./workerApp/Nav"); EXAMPLE
+
 
 injectTapEventPlugin();
 
@@ -49,7 +51,7 @@ ReactDOM.render(
     <I18n translations={translations}>
       <MuiThemeProvider>
         <BrowserRouter>
-            <div>
+            <Nav /> EXAMPLE
               <Switch>
                 <Route path='/:worker_id/signup' component={SignupComponent} />
                 <Route path="/:worker_id/jobs" component={RequireAuth(Jobs)}/>
@@ -62,10 +64,6 @@ ReactDOM.render(
 
 
               </Switch>
-
-
-
-            </div>
 
         </BrowserRouter>
       </MuiThemeProvider>
