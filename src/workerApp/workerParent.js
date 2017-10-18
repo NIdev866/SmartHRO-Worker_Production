@@ -28,7 +28,6 @@ class WorkerParent extends Component {
 
     return(
       <div>
-        <Nav onChangeLang={this.onChangeLang} languages={this.languages}/>
         <Contents url={this.props.match.url} />
       </div>
     )

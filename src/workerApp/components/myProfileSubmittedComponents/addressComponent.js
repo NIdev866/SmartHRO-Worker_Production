@@ -173,9 +173,7 @@ class AddressComponent extends Component{
           .catch((e)=>console.log(e))
   }
   houseOrFlatChosen(personalDataOfWorkerCopy){
-    console.log('one')
     if(!this.state.editingHouseNo){
-      console.log('two')
       if(this.props.house_or_flat === "house"){
         return <HouseChosen
           closeAllEdits={this.closeAllEdits}

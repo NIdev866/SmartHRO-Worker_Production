@@ -22,6 +22,7 @@ class renderError extends Component{
     return(
       <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
         {this.props.meta.error && this.props.meta.error == "Birth date required" ? <span>{this.context.t('Birth date required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == 'Invalid NI number' ? <span>{this.context.t('Invalid NI number')}</span> : ""}
       </div>
     )
   }
@@ -51,29 +52,10 @@ class TaxComponent extends Component{
     this.handleBirthDateChange = this.handleBirthDateChange.bind(this)
     this.formatDate = this.formatDate.bind(this)
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   NIonChange(event) {
     event.target.value = event.target.value.toUpperCase()
     if (event.target.value.length === event.target.maxLength && event.target.id !== '10') {
       if (event.target.value.length === event.target.maxLength && event.target.id !== '9') {
-
-        console.log({id: parseInt(event.target.id, 10) + 1})
-
         this.refs[parseInt(event.target.id, 10) + 1].focus();
       }
       let stateToChange = `NI${event.target.id}`
@@ -118,43 +100,22 @@ class TaxComponent extends Component{
       }
       ref++
     }
-    return <div>{result}</div>
+    return (
+      <div>
+      {result}
+      <Field name="ni_number" component={renderError} />
+    </div>)
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   formatDate(date){
     return date.getFullYear() + "-" + ('0' + (date.getMonth()+1)).slice(-2) + "-" + ('0' + (date.getDate()+1)).slice(-2);
   }
   handleBirthDateChange(event, date){
-
-    console.log({dateeee: this.personalDataOfWorkerCopy})
-
     this.setState({
       birthDate: date
     }, ()=>{
       this.setState({
         birthDateFormatted: this.formatDate(this.state.birthDate)
       }, ()=>{
-        
-          console.log({birthDateFormatted: this.state.birthDateFormatted})
-
               let bodyForUpdate = {
                 ni_number: this.personalDataOfWorkerCopy.ni_number,
                 dob: this.state.birthDateFormatted,
@@ -162,40 +123,27 @@ class TaxComponent extends Component{
               this.props.updateTaxDataOfWorker(bodyForUpdate)
               this.closeAllEdits()
             }
-
-
       )
     })
   }
-
-
-
-
-
-
   handleEdit(e,){
     e.preventDefault()
     console.log({e})
   }
-
   editNInumber(proxy){
     proxy.preventDefault()
     this.setState({editingNInumber: true})
   }
-
   editDob(proxy){
     proxy.preventDefault()
     this.setState({editingDob: true})
   }
-
   closeAllEdits(){
     this.setState({
       editingNInumber: false,
       editingDob: false
     })
   }
-
-
   render(){
   	const { handleSubmit } = this.props;
     const radiosParentDiv = {
@@ -225,19 +173,12 @@ class TaxComponent extends Component{
     }
     return(
       <div style={{position: 'absolute', width: '100%', height: '100%'}}>
-
       <h3><u>{this.context.t('Tax')}</u></h3>
-
           <form onSubmit={handleSubmit}>
               <div>
                 <div>{this.context.t('National Insurance number')}</div>
-
-
-
-
-
                 {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].ni_number && !this.state.editingNInumber ?
-                  <div><span>{this.props.personalDataOfWorker[0].ni_number}</span> 
+                  <div><span>{this.props.personalDataOfWorker[0].ni_number}</span>
                     <button onClick={this.editNInumber.bind(this)}>EDIT</button>
                   </div>
                   :
@@ -246,22 +187,11 @@ class TaxComponent extends Component{
               </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
             <div style={{marginTop: '20px'}}>{this.context.t('Birth date')}</div>
 
 
             {this.props.personalDataOfWorker && this.props.personalDataOfWorker[0].dob && !this.state.editingDob ?
-              <div><span>{this.props.personalDataOfWorker[0].dob}</span> 
+              <div><span>{this.props.personalDataOfWorker[0].dob.substring(0, this.props.personalDataOfWorker[0].dob.indexOf('T'))}</span>
                 <button onClick={this.editDob.bind(this)}>EDIT</button>
               </div>
               :

@@ -26,11 +26,13 @@ import I18n from "redux-i18n"
 
 import {translations} from "./translations"
 
+import App from './app'
 
-var Nav = require("./workerApp/Nav"); EXAMPLE
+import Nav from "./workerApp/Nav"
 
 
 injectTapEventPlugin();
+
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 const store = createStore(reducers, composeEnhancers(
@@ -38,38 +40,17 @@ const store = createStore(reducers, composeEnhancers(
   ));
 
 
+  const token = localStorage.getItem('token');
+  if (token) {
+    store.dispatch({ type: AUTH_USER });
+  }
 
-
-const token = localStorage.getItem('token');
-if (token) {
-  store.dispatch({ type: AUTH_USER });
-}
 
 
 ReactDOM.render(
-  <Provider store={store}>
-    <I18n translations={translations}>
-      <MuiThemeProvider>
-        <BrowserRouter>
-            <Nav /> EXAMPLE
-              <Switch>
-                <Route path='/:worker_id/signup' component={SignupComponent} />
-                <Route path="/:worker_id/jobs" component={RequireAuth(Jobs)}/>
-                <Route path="/:worker_id/progress" component={RequireAuth(Progress)}/>
-                <Route path="/:worker_id/myprofile" component={RequireAuth(Myprofile)}/>
-                <Route path="/:worker_id/myprofilesubmitted" component={RequireAuth(Myprofilesubmitted)}/>
-                <Route path='/login' component={Signin} />
-                <Route path='/' component={WorkerParent} />
-
-
-
-              </Switch>
-
-        </BrowserRouter>
-      </MuiThemeProvider>
-    </I18n>
-  </Provider>
-  , document.getElementById('root'));
+  <App store={store}/>,
+  document.getElementById('root')
+);
 
 
   //

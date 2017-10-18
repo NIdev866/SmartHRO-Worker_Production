@@ -6,6 +6,9 @@ import RaisedButton from 'material-ui/RaisedButton'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 
+import Dialog from 'material-ui/Dialog';
+import loginSubmit from './loginSubmit'
+
 
 class Signin extends Component {
   constructor() {
@@ -28,13 +31,21 @@ class Signin extends Component {
     this.props.clearAuthError()
   }
   render() {
+    let worker_id = localStorage.getItem('worker_id')
+
     const { handleSubmit } = this.props;
     return (
       <div style={{maxWidth: "500px", margin: "0 auto"}}>
         <div style={{marginRight: "15px", marginLeft: "15px"}}>
           {this.props.authenticated ?
-            <Redirect to="/jobs"/>
+            <Redirect to={`${worker_id}/jobs`} />
             :
+            <Dialog
+              style={{marginTop: "-200px"}}
+              modal={true}
+              overlayStyle={{opacity: "0.6"}}
+              open={true}
+            >
             <form onSubmit={handleSubmit(this.handleFormSubmit)}>
               <Field
                 name="email"
@@ -55,6 +66,7 @@ class Signin extends Component {
                 primary={true}
               />
             </form>
+          </Dialog>
           }
         </div>
       </div>
@@ -91,7 +103,7 @@ Signin.contextTypes = {
 
 export default reduxForm({
   form: 'signin',
-  validate,
+  validate
 })(
   connect(mapStateToProps, { signinUser, clearAuthError })(Signin)
 );

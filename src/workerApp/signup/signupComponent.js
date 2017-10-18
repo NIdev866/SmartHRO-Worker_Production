@@ -7,6 +7,9 @@ import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 
 
+import Dialog from 'material-ui/Dialog';
+
+
 class SignupComponent extends Component {
   constructor() {
     super();
@@ -31,41 +34,51 @@ class SignupComponent extends Component {
 
 
   render() {
+
+    let worker_id = localStorage.getItem('worker_id')
+
     const { handleSubmit } = this.props;
     return (
       <div style={{maxWidth: "500px", margin: "0 auto"}}>
-        <div style={{marginRight: "15px", marginLeft: "15px"}}>
-          {this.props.authenticated ?
-            <Redirect to="/jobs"/>
-            :
-            <form onSubmit={handleSubmit(this.handleFormSubmit)}>
-              <Field
-                name="email"
-                type="text"
-                component={renderField}
-                label="Email"
-              />
-              <Field
-                name="password"
-                type="password"
-                component={renderField}
-                label={this.context.t('Password')}
-              />
-              <Field
-                name="confirm_password"
-                type="password"
-                component={renderField}
-                label={this.context.t('Confirm Password')}
-              />
+          <div style={{marginRight: "15px", marginLeft: "15px"}}>
+            {this.props.authenticated ?
+              <Redirect to={`${worker_id}/jobs`} />
+              :
+              <Dialog
+                style={{marginTop: "-200px"}}
+                modal={true}
+                overlayStyle={{opacity: "0.6"}}
+                open={true}
+              >
+              <form onSubmit={handleSubmit(this.handleFormSubmit)}>
+                <Field
+                  name="email"
+                  type="text"
+                  component={renderField}
+                  label="Email"
+                />
+                <Field
+                  name="password"
+                  type="password"
+                  component={renderField}
+                  label={this.context.t('Password')}
+                />
+                <Field
+                  name="confirm_password"
+                  type="password"
+                  component={renderField}
+                  label={this.context.t('Confirm Password')}
+                />
 
-              <RaisedButton
-                type="submit"
-                label={this.context.t('SIGN UP')}
-                primary={true}
-              />
-            </form>
-          }
-        </div>
+                <RaisedButton
+                  type="submit"
+                  label={this.context.t('SIGN UP')}
+                  primary={true}
+                />
+              </form>
+            </Dialog>
+            }
+          </div>
       </div>
 
     )//return

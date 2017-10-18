@@ -2,39 +2,39 @@ const validate = values => {
   const errors = {}
 
 
-/*  if (!values.NI_number) {
-    errors.NI_number = 'Full NI number required'
+  if (values.NI_number) {
+    console.log('ninumerror')
+    if(!/[A-Z]/g.test(values.NI_number.substring(0,1)) && values.NI_number.substring(0,1) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[A-Z]/g.test(values.NI_number.substring(1,2)) && values.NI_number.substring(1,2) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[0-9]/g.test(values.NI_number.substring(2,3)) && values.NI_number.substring(2,3) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[0-9]/g.test(values.NI_number.substring(3,4)) && values.NI_number.substring(3,4) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[0-9]/g.test(values.NI_number.substring(4,5)) && values.NI_number.substring(4,5) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[0-9]/g.test(values.NI_number.substring(5,6)) && values.NI_number.substring(5,6) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[0-9]/g.test(values.NI_number.substring(6,7)) && values.NI_number.substring(6,7) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[0-9]/g.test(values.NI_number.substring(7,8)) && values.NI_number.substring(7,8) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if(!/[A-Z]/g.test(values.NI_number.substring(8,9)) && values.NI_number.substring(8,9) !== ''){
+      errors.NI_number = 'Invalid NI number'
+    }
+    else if (values.NI_number.length !== 9) {
+      errors.NI_number = 'Full NI number required'
+    }
   }
-  else if(!/[A-Z]/g.test(values.NI_number.substring(0,1)) && values.NI_number.substring(0,1) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[A-Z]/g.test(values.NI_number.substring(1,2)) && values.NI_number.substring(1,2) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[0-9]/g.test(values.NI_number.substring(2,3)) && values.NI_number.substring(2,3) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[0-9]/g.test(values.NI_number.substring(3,4)) && values.NI_number.substring(3,4) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[0-9]/g.test(values.NI_number.substring(4,5)) && values.NI_number.substring(4,5) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[0-9]/g.test(values.NI_number.substring(5,6)) && values.NI_number.substring(5,6) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[0-9]/g.test(values.NI_number.substring(6,7)) && values.NI_number.substring(6,7) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[0-9]/g.test(values.NI_number.substring(7,8)) && values.NI_number.substring(7,8) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if(!/[A-Z]/g.test(values.NI_number.substring(8,9)) && values.NI_number.substring(8,9) !== ''){
-    errors.NI_number = 'Invalid NI number'
-  }
-  else if (values.NI_number.length !== 9) {
-    errors.NI_number = 'Full NI number required'
-  }*/
 
   if (!values.sort_code) {
     errors.sort_code = 'Full sortcode required'
@@ -68,21 +68,21 @@ const validate = values => {
   if (!values.address_road1) {
     errors.address_road1 = 'Address line 1 required'
   }
-  else if (values.address_road1.length > 15) {
+  else if (values.address_road1.length > 25) {
     errors.address_road1 = 'Address line too long'
   }
   else if (values.address_road1.match(/[0-9]/g)){
     errors.address_road1 = 'Invalid Address'
   }
 
-  if (values.address_road2 && values.address_road2.length > 15) {
+  if (values.address_road2 && values.address_road2.length > 25) {
     errors.address_road2 = 'Address line too long'
   }
   else if (values.address_road2 && values.address_road2.match(/[0-9]/g)){
     errors.address_road2 = 'Invalid Address'
   }
 
-  if (values.address_road3 && values.address_road3.length > 15) {
+  if (values.address_road3 && values.address_road3.length > 25) {
     errors.address_road3 = 'Address line too long'
   }
   else if (values.address_road3 && values.address_road3.match(/[0-9]/g)){
@@ -106,16 +106,26 @@ const validate = values => {
   if (!values.postal_code) {
     errors.postal_code = 'Postal code required'
   }
+  else if (values.postal_code.length < 5 || values.postal_code.length > 7) {
+    errors.postal_code = 'Invalid postcode length'
+  }
+
   if (!values.house_or_flat) {
     errors.house_or_flat = 'House or flat required'
   }
   if (!values.house_no) {
     errors.house_no = 'House number required'
   }
+  else if (values.house_no.length < 1 || values.house_no.length > 5) {
+    errors.house_no = 'House number too long'
+  }
+
   if (!values.flat_no) {
     errors.flat_no = 'Flat number required'
   }
-
+  else if (values.flat_no.length < 1 || values.flat_no.length > 5) {
+    errors.flat_no = 'Flat number too long'
+  }
 
 
 

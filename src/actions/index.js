@@ -61,7 +61,7 @@ export function updateBankDetailsDataOfWorker(fieldsToUpdate){
 export function updateTaxDataOfWorker(fieldsToUpdate){
   const worker_id = localStorage.getItem('worker_id');
   return function(dispatch){
-    axios.put(`http://localhost:3000/${worker_id}`, fieldsToUpdate)
+    axios.put(`http://localhost:3000/worker/add-personaltaxdata/${worker_id}`, fieldsToUpdate)
       .then(response => {
         dispatch(fetchPersonalDataOfWorker())
 
@@ -167,34 +167,51 @@ export function fetchAllCampaigns(){
 
 export function signupUser({ email, password, jobseeker_id }) {
   return function(dispatch) {
-    axios.put(`${ROOT_URL}/worker/addlogin-credentials`, { email, password,jobseeker_id })
+    axios.put(`http://localhost:3000/worker/addlogin-credentials`, { email, password,jobseeker_id })
       .then(response => {
         //window.location.replace('/');
         console.log(response);
         localStorage.setItem('worker_email', email);
-        dispatch({ type: AUTH_USER });
+
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('worker_id', response.data.id);
+        dispatch({ type: AUTH_USER });
       })
       .catch((err) => {
         dispatch(authError('Bad Sign-Up Information'));
       });
   };
 }
+
+
+
+
+
+
 export function signinUser({ email, password }) {
+
   return function(dispatch) {
-    axios.post(`${ROOT_URL}/worker/login`, { email, password })
+
+    axios.post(`http://localhost:3000/worker/login`, { email, password })
       .then(response => {
         localStorage.setItem('worker_email', email);
-        dispatch({ type: AUTH_USER });
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('worker_id', response.data.id);
+        dispatch({ type: AUTH_USER });
       })
-      .catch((err) => {
+      .catch(err => {
+
+        console.log(err)
+
         dispatch(authError('Bad Sign-in Information'));
       });
   };
 }
+
+
+
+
+
 
 export function authError(error) {
   return {

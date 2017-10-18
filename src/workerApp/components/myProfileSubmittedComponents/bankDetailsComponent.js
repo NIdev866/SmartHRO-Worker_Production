@@ -19,13 +19,20 @@ import _ from 'lodash'
 
 
 
+class renderError extends Component{
+  render(){
+    return(
+      <div style={{color: "red", fontSize: '14px', marginBottom: '25px'}}>
+        {this.props.meta.error && this.props.meta.error == "Birth date required" ? <span>{this.context.t('Birth date required')}</span> : ""}
+        {this.props.meta.error && this.props.meta.error == 'Invalid NI number' ? <span>{this.context.t('Invalid NI number')}</span> : ""}
+      </div>
+    )
+  }
+}
 
-
-
-
-
-
-
+renderError.contextTypes = {
+  t: PropTypes.func.isRequired
+}
 
 
 
@@ -120,7 +127,10 @@ class BankDetailsComponent extends Component{
       }
       ref++
     }
-    return <div>{result}</div>
+    return (<div>
+      {result}
+      <Field name="sort_code" component={renderError} />
+    </div>)
   }
 
 
