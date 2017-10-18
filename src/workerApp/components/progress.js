@@ -25,7 +25,7 @@ class Progress extends Component{
     const worker_id = localStorage.getItem('worker_id');
 
     const actions = [
-    <Link to={`/${worker_id}/myprofile`}>
+    <Link to={`/${worker_id}/createprofile`}>
       <FlatButton
         label={this.context.t('Go to my profile')}
         primary={true}

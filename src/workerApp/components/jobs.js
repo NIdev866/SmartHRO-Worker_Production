@@ -8,13 +8,13 @@ import { Link } from "react-router-dom"
 import JobCards from "./jobCards"
 import { Redirect } from 'react-router'
 
-class Jobs extends Component{  
+class Jobs extends Component{
   render(){
 
     const worker_id = localStorage.getItem('worker_id');
 
     const actions = [
-    <Link to={`/${worker_id}/myprofile`}>
+    <Link to={`/${worker_id}/createprofile`}>
       <FlatButton
         label="Go to my profile"
         primary={true}
@@ -29,7 +29,7 @@ class Jobs extends Component{
       return <Redirect to={`/${worker_id}/jobs`}/>
     }
     else{
-    
+
       return(
         <div style={{maxWidth: "800px", margin: "0 auto"}}>
           <Dialog

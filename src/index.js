@@ -9,9 +9,9 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import reducers from './reducers';
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import Progress from "./workerApp/components/progress"
-import Myprofile from "./workerApp/components/myProfileParent"
+import CreateProfile from "./workerApp/components/createProfileParent"
 
-import Myprofilesubmitted from './workerApp/components/myProfileParentSubmitted'
+import MyProfile from './workerApp/components/myProfileParent'
 
 import Jobs from "./workerApp/components/jobs"
 import reduxThunk from 'redux-thunk';
